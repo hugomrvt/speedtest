@@ -1,12 +1,12 @@
-function modernStartButton(page) {
-  return page.locator('#start-button');
+function startButton(page) {
+  return page.locator("#start-button");
 }
 
-function classicStartButton(page) {
-  return page.locator('#startStopBtn');
+function brand(page) {
+  return page.locator(".logo");
 }
 
 module.exports = {
-  modernStartButton,
-  classicStartButton,
+  startButton,
+  brand
 };
