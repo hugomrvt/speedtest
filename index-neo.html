@@ -6,62 +6,42 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
   <meta name="description"
     content="Free and Open Source Speedtest. Run it right now in your browser, or self-host on a PHP, Golang, Rust or Node server. License: LGPL." />
-  <meta name="theme-color" content="#fafafa" media="(prefers-color-scheme: light)" />
-  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
+  <meta name="theme-color" content="#08070d" />
   <link rel="shortcut icon" href="favicon.ico" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <script type="text/javascript" src="speedtest.js"></script>
   <script type="text/javascript">
-    // Set this to a different URL to load the server list from another location.
     var SPEEDTEST_SERVERS = "server-list.json";
   </script>
   <title>LibreSpeed</title>
   <style>
     :root {
-      color-scheme: light dark;
-
-      --bg: #fafafa;
-      --surface: rgba(255, 255, 255, 0.7);
-      --surface-solid: #ffffff;
-      --border: rgba(0, 0, 0, 0.08);
-      --text: #1d1d1f;
-      --text-muted: #6e6e73;
-      --text-faint: #a1a1a6;
-      --accent: #0071e3;
-      --accent-hover: #0077ed;
-      --accent-pressed: #006edb;
-      --danger: #ff3b30;
-      --danger-hover: #ff453a;
-      --download: #0071e3;
-      --upload: #34c759;
-      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
-      --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.06);
-      --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.08);
-      --radius-sm: 10px;
-      --radius-md: 16px;
-      --radius-lg: 24px;
-      --radius-pill: 999px;
-    }
-
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #000000;
-        --surface: rgba(28, 28, 30, 0.72);
-        --surface-solid: #1c1c1e;
-        --border: rgba(255, 255, 255, 0.1);
-        --text: #f5f5f7;
-        --text-muted: #aeaeb2;
-        --text-faint: #6e6e73;
-        --accent: #0a84ff;
-        --accent-hover: #339cff;
-        --accent-pressed: #0070d8;
-        --danger: #ff453a;
-        --danger-hover: #ff5e54;
-        --download: #0a84ff;
-        --upload: #30d158;
-        --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-        --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
-        --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.5);
-      }
+      --bg-0: #08070d;
+      --bg-1: #0d0c14;
+      --bg-2: #15131e;
+      --surface: rgba(255, 255, 255, 0.04);
+      --surface-strong: rgba(255, 255, 255, 0.06);
+      --border: rgba(255, 255, 255, 0.08);
+      --border-strong: rgba(255, 255, 255, 0.14);
+      --text: #f4f3f7;
+      --text-muted: #9d9aab;
+      --text-faint: #5a576b;
+      --accent: #c5b6ff;
+      --accent-strong: #a78bfa;
+      --accent-glow: rgba(167, 139, 250, 0.4);
+      --download: #c5b6ff;
+      --download-soft: rgba(197, 182, 255, 0.18);
+      --upload: #7df0c6;
+      --upload-soft: rgba(125, 240, 198, 0.18);
+      --danger: #ff7a8a;
+      --danger-soft: rgba(255, 122, 138, 0.18);
+      --serif: "Instrument Serif", ui-serif, Georgia, "Times New Roman", serif;
+      --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
     * {
@@ -70,473 +50,707 @@
       padding: 0;
     }
 
-    html,
-    body {
+    html, body {
       min-height: 100vh;
+      width: 100%;
     }
 
     body {
-      background: var(--bg);
+      font-family: var(--sans);
+      background: var(--bg-0);
       color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
-        "Helvetica Neue", Helvetica, Arial, sans-serif;
-      font-feature-settings: "ss01", "ss02", "cv01", "cv11";
+      overflow-x: hidden;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
       text-rendering: optimizeLegibility;
+      font-feature-settings: "ss01", "ss02", "cv01", "cv11";
       line-height: 1.4;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
+      letter-spacing: -0.005em;
+      position: relative;
     }
 
-    /* Header */
-    header {
-      padding: 24px 32px;
+    /* Aurora background */
+    .aurora {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    .aurora::before,
+    .aurora::after {
+      content: "";
+      position: absolute;
+      width: 1200px;
+      height: 1200px;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.5;
+      will-change: transform;
+    }
+
+    .aurora::before {
+      background: radial-gradient(closest-side, #6e3eb6 0%, transparent 70%);
+      top: -25%;
+      left: -15%;
+      animation: drift1 22s ease-in-out infinite;
+    }
+
+    .aurora::after {
+      background: radial-gradient(closest-side, #1d6bb8 0%, transparent 70%);
+      bottom: -30%;
+      right: -20%;
+      animation: drift2 28s ease-in-out infinite;
+    }
+
+    .aurora-3 {
+      position: absolute;
+      width: 800px;
+      height: 800px;
+      border-radius: 50%;
+      filter: blur(100px);
+      opacity: 0.3;
+      background: radial-gradient(closest-side, #b870e2 0%, transparent 70%);
+      top: 30%;
+      left: 50%;
+      transform: translateX(-50%);
+      animation: drift3 25s ease-in-out infinite;
+    }
+
+    @keyframes drift1 {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(80px, 60px) scale(1.1); }
+      66% { transform: translate(-40px, 90px) scale(0.95); }
+    }
+    @keyframes drift2 {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(-90px, -50px) scale(1.05); }
+      66% { transform: translate(60px, -80px) scale(0.9); }
+    }
+    @keyframes drift3 {
+      0%, 100% { transform: translateX(-50%) scale(1); }
+      50% { transform: translateX(-50%) translateY(40px) scale(1.15); }
+    }
+
+    /* Grain overlay */
+    .grain {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      opacity: 0.06;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      mix-blend-mode: overlay;
+    }
+
+    /* Layout */
+    .app {
+      position: relative;
+      z-index: 2;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top nav */
+    nav {
+      padding: 28px 40px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      max-width: 1200px;
-      width: 100%;
-      margin: 0 auto;
+      gap: 24px;
+      flex-wrap: wrap;
     }
 
-    .brand {
-      font-size: 17px;
-      font-weight: 600;
-      letter-spacing: -0.022em;
-      color: var(--text);
+    @media (max-width: 640px) {
+      nav { padding: 20px; }
     }
 
-    .brand span {
-      color: var(--text-muted);
-      font-weight: 400;
-    }
-
-    /* Main */
-    main {
-      flex: 1;
-      max-width: 720px;
-      width: 100%;
-      margin: 0 auto;
-      padding: 24px 24px 64px;
-      text-align: center;
+    .logo {
       display: flex;
-      flex-direction: column;
       align-items: center;
-    }
-
-    .hero {
-      margin: 48px 0 40px;
-    }
-
-    .hero h1 {
-      font-size: clamp(40px, 6vw, 64px);
-      font-weight: 600;
-      letter-spacing: -0.04em;
-      line-height: 1.05;
+      gap: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
       color: var(--text);
     }
 
-    .hero p {
-      margin-top: 12px;
-      font-size: clamp(17px, 2vw, 21px);
-      font-weight: 400;
-      letter-spacing: -0.022em;
-      color: var(--text-muted);
+    .logo-mark {
+      width: 22px;
+      height: 22px;
+      border-radius: 7px;
+      background: linear-gradient(135deg, var(--accent-strong), #7df0c6);
+      box-shadow: 0 0 18px var(--accent-glow), inset 0 0 0 1px rgba(255,255,255,0.2);
+      position: relative;
+    }
+    .logo-mark::before {
+      content: "";
+      position: absolute;
+      inset: 5px;
+      border-radius: 3px;
+      background: var(--bg-0);
+      box-shadow: inset 0 0 0 1.5px var(--text);
     }
 
-    /* Server selector */
-    .server-pill {
+    .logo-tag {
+      font-family: var(--serif);
+      font-style: italic;
+      font-weight: 400;
+      font-size: 16px;
+      letter-spacing: 0;
+      text-transform: none;
+      color: var(--text-muted);
+      margin-left: 2px;
+    }
+
+    /* Server pill */
+    .server {
       position: relative;
       display: inline-flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
       padding: 10px 18px;
-      margin-bottom: 32px;
-      background: var(--surface-solid);
+      background: var(--surface);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
       border: 1px solid var(--border);
-      border-radius: var(--radius-pill);
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--text-muted);
+      border-radius: 999px;
       cursor: pointer;
-      transition: all 0.2s ease;
-      box-shadow: var(--shadow-sm);
+      transition: all 0.3s var(--ease-out);
+      font-size: 13px;
+      color: var(--text-muted);
       max-width: 100%;
     }
 
-    .server-pill:hover {
-      border-color: var(--accent);
+    .server:hover {
+      border-color: var(--border-strong);
+      background: var(--surface-strong);
       color: var(--text);
-      transform: translateY(-1px);
-      box-shadow: var(--shadow-md);
     }
 
-    .server-pill.disabled {
-      opacity: 0.5;
+    .server.disabled {
+      opacity: 0.4;
       pointer-events: none;
     }
 
-    .server-pill .dot {
-      width: 8px;
-      height: 8px;
+    .server-dot {
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
       background: var(--text-faint);
-      transition: background 0.3s;
+      flex-shrink: 0;
+      transition: all 0.3s var(--ease-out);
     }
 
-    .server-pill.ready .dot {
+    .server.ready .server-dot {
       background: var(--upload);
-      box-shadow: 0 0 0 4px rgba(52, 199, 89, 0.15);
+      box-shadow: 0 0 0 3px var(--upload-soft), 0 0 12px var(--upload);
     }
 
-    .server-pill .chevron {
-      width: 10px;
-      height: 10px;
-      border-right: 1.5px solid currentColor;
-      border-bottom: 1.5px solid currentColor;
-      transform: rotate(45deg) translate(-2px, -2px);
-      opacity: 0.6;
-    }
-
-    .server-pill .server-name {
-      max-width: 320px;
+    .server-name {
+      max-width: 240px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      font-weight: 500;
+      letter-spacing: -0.005em;
+    }
+
+    .server-chevron {
+      width: 9px;
+      height: 9px;
+      border-right: 1.5px solid currentColor;
+      border-bottom: 1.5px solid currentColor;
+      transform: rotate(45deg);
+      margin-bottom: 3px;
+      opacity: 0.5;
+      transition: transform 0.3s var(--ease-out);
+    }
+
+    .server[aria-expanded="true"] .server-chevron {
+      transform: rotate(-135deg);
+      margin-bottom: -3px;
     }
 
     .server-list {
       position: absolute;
-      top: calc(100% + 8px);
-      left: 50%;
-      transform: translateX(-50%);
+      top: calc(100% + 10px);
+      right: 0;
       min-width: 280px;
-      max-width: 92vw;
-      max-height: 320px;
+      max-width: min(420px, 92vw);
+      max-height: 360px;
       overflow-y: auto;
-      background: var(--surface-solid);
+      background: rgba(20, 18, 28, 0.85);
+      backdrop-filter: blur(30px) saturate(180%);
+      -webkit-backdrop-filter: blur(30px) saturate(180%);
       border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      box-shadow: var(--shadow-lg);
-      padding: 6px;
+      border-radius: 18px;
+      padding: 8px;
       list-style: none;
-      text-align: left;
       opacity: 0;
+      transform: translateY(-6px) scale(0.98);
       pointer-events: none;
-      transform: translateX(-50%) translateY(-4px);
-      transition: opacity 0.15s ease, transform 0.15s ease;
-      z-index: 10;
+      transition: all 0.2s var(--ease-out);
+      z-index: 50;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255,255,255,0.02);
     }
 
     .server-list.active {
       opacity: 1;
+      transform: translateY(0) scale(1);
       pointer-events: auto;
-      transform: translateX(-50%) translateY(0);
     }
 
     .server-list li {
-      padding: 10px 12px;
-      border-radius: var(--radius-sm);
+      padding: 11px 14px;
+      border-radius: 10px;
       cursor: pointer;
-      font-size: 14px;
+      font-size: 13px;
       color: var(--text);
-      transition: background 0.12s ease;
+      transition: background 0.15s var(--ease-out);
+      line-height: 1.3;
     }
-
-    .server-list li:hover {
-      background: rgba(0, 113, 227, 0.08);
-    }
-
-    @media (prefers-color-scheme: dark) {
-      .server-list li:hover {
-        background: rgba(10, 132, 255, 0.16);
-      }
-    }
-
+    .server-list li:hover { background: rgba(255,255,255,0.06); }
     .server-list .sponsor {
       display: block;
-      font-size: 12px;
+      font-size: 11px;
       color: var(--text-faint);
+      margin-top: 3px;
+      letter-spacing: 0.02em;
+    }
+
+    /* Main stage */
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px 40px 60px;
+      text-align: center;
+      gap: 32px;
+    }
+
+    @media (max-width: 640px) {
+      main { padding: 20px 20px 40px; gap: 24px; }
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 7px 14px;
+      background: var(--surface);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      animation: revealUp 0.8s var(--ease-out) backwards;
+    }
+
+    .eyebrow-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--accent-strong);
+      box-shadow: 0 0 10px var(--accent-glow);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    /* Gauge */
+    .gauge-wrap {
+      position: relative;
+      width: min(440px, 86vw);
+      aspect-ratio: 1;
+      animation: revealUp 1s var(--ease-out) 0.1s backwards;
+    }
+
+    .gauge-svg {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+      overflow: visible;
+    }
+
+    .gauge-track {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.06);
+      stroke-width: 1.5;
+    }
+
+    .gauge-ring {
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 0.4s var(--ease-out), stroke 0.3s ease;
+    }
+
+    .gauge-progress {
+      stroke: var(--accent);
+      filter: drop-shadow(0 0 8px var(--accent-glow));
+    }
+
+    .gauge-progress.upload { stroke: var(--upload); filter: drop-shadow(0 0 8px var(--upload-soft)); }
+
+    /* Tick marks */
+    .gauge-ticks {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    /* Center content */
+    .gauge-center {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 10%;
+    }
+
+    .gauge-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      transition: color 0.3s ease;
+      height: 18px;
+    }
+    .gauge-label.active { color: var(--accent); }
+    .gauge-label.upload-active { color: var(--upload); }
+
+    .gauge-arrow {
+      width: 11px;
+      height: 11px;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .gauge-label.active .gauge-arrow,
+    .gauge-label.upload-active .gauge-arrow { opacity: 1; }
+
+    .gauge-value {
+      font-family: var(--sans);
+      font-size: clamp(54px, 13vw, 96px);
+      font-weight: 300;
+      letter-spacing: -0.05em;
+      line-height: 1;
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum";
+      transition: color 0.3s ease;
+      margin-top: -2px;
+    }
+
+    .gauge-unit {
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+      text-transform: lowercase;
       margin-top: 2px;
     }
 
-    /* Speed cards */
-    .speed-cards {
+    .gauge-phase {
+      margin-top: 14px;
+      min-height: 18px;
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 17px;
+      color: var(--text-muted);
+      letter-spacing: 0.005em;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 0.4s var(--ease-out), transform 0.4s var(--ease-out);
+    }
+    .gauge-phase.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Stats row */
+    .stats {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 16px;
-      width: 100%;
-      max-width: 600px;
-      margin-bottom: 16px;
-    }
-
-    @media (max-width: 540px) {
-      .speed-cards {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .card {
-      background: var(--surface-solid);
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      width: min(680px, 100%);
+      background: var(--border);
       border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 28px 24px;
-      box-shadow: var(--shadow-sm);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      position: relative;
+      border-radius: 18px;
       overflow: hidden;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      animation: revealUp 1s var(--ease-out) 0.2s backwards;
     }
 
-    .card.active {
-      box-shadow: var(--shadow-md);
-      transform: translateY(-2px);
+    @media (max-width: 640px) {
+      .stats { grid-template-columns: repeat(2, 1fr); }
     }
 
-    .card .label {
+    .stat {
+      background: rgba(13, 12, 20, 0.6);
+      padding: 18px 14px;
+      text-align: center;
+      transition: background 0.3s var(--ease-out);
+      position: relative;
+    }
+
+    .stat.active {
+      background: rgba(20, 18, 30, 0.8);
+    }
+
+    .stat-label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      margin-bottom: 8px;
+      transition: color 0.3s ease;
+    }
+    .stat.active .stat-label { color: var(--text-muted); }
+
+    .stat-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: currentColor;
+      opacity: 0.6;
+    }
+    .stat.download .stat-dot { color: var(--download); }
+    .stat.upload .stat-dot { color: var(--upload); }
+    .stat.ping .stat-dot { color: #f0c060; }
+    .stat.jitter .stat-dot { color: #ff9090; }
+
+    .stat-value {
+      font-family: var(--sans);
+      font-size: clamp(22px, 3.5vw, 28px);
+      font-weight: 400;
+      letter-spacing: -0.03em;
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum";
+      line-height: 1.1;
+    }
+
+    .stat-unit {
+      display: inline-block;
+      margin-left: 2px;
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--text-faint);
+      letter-spacing: 0.02em;
+    }
+
+    /* Action button */
+    .action-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      animation: revealUp 1s var(--ease-out) 0.3s backwards;
+    }
+
+    .action {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-width: 220px;
+      height: 56px;
+      padding: 0 38px;
+      background: linear-gradient(180deg, #f7f5fb 0%, #d6cfe7 100%);
+      color: #1a1626;
+      border: 0;
+      border-radius: 999px;
+      font-family: var(--sans);
+      font-size: 15px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      cursor: pointer;
+      overflow: hidden;
+      transition: transform 0.25s var(--ease-spring), box-shadow 0.3s var(--ease-out);
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.1),
+        0 1px 0 rgba(255,255,255,0.5) inset,
+        0 -1px 0 rgba(0,0,0,0.08) inset,
+        0 14px 40px -10px rgba(167, 139, 250, 0.5),
+        0 6px 20px -8px rgba(0,0,0,0.5);
+    }
+
+    .action::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(120% 80% at 50% 0%, rgba(255,255,255,0.6), transparent 60%);
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    .action:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.15),
+        0 1px 0 rgba(255,255,255,0.5) inset,
+        0 -1px 0 rgba(0,0,0,0.08) inset,
+        0 24px 60px -10px rgba(167, 139, 250, 0.65),
+        0 10px 30px -10px rgba(0,0,0,0.5);
+    }
+
+    .action:active {
+      transform: translateY(0) scale(0.99);
+      transition: transform 0.1s ease;
+    }
+
+    .action.disabled {
+      background: var(--surface);
+      color: var(--text-faint);
+      cursor: not-allowed;
+      pointer-events: none;
+      box-shadow: 0 0 0 1px var(--border);
+    }
+    .action.disabled::before { display: none; }
+
+    .action.running {
+      background: linear-gradient(180deg, #ff8a98 0%, #d85565 100%);
+      color: #fff;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.1),
+        0 1px 0 rgba(255,255,255,0.3) inset,
+        0 -1px 0 rgba(0,0,0,0.15) inset,
+        0 14px 40px -10px rgba(255, 122, 138, 0.55),
+        0 6px 20px -8px rgba(0,0,0,0.5);
+    }
+
+    .action-icon {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+      animation: pulse 1.4s ease-in-out infinite;
+      opacity: 0.85;
+    }
+    .action:not(.running) .action-icon { display: none; }
+
+    /* Footer info */
+    .meta {
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
-      font-size: 13px;
-      font-weight: 500;
-      letter-spacing: -0.01em;
+      min-height: 18px;
+      font-size: 12px;
+      color: var(--text-faint);
+      letter-spacing: 0.005em;
+    }
+
+    .meta .meta-ip {
+      font-family: var(--mono);
+      font-size: 11px;
       color: var(--text-muted);
-      margin-bottom: 12px;
-      text-transform: uppercase;
+      letter-spacing: 0;
     }
 
-    .card .icon {
-      width: 16px;
-      height: 16px;
-      stroke-width: 2.5;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-      fill: none;
-    }
+    .meta .meta-sep { opacity: 0.4; }
 
-    .card.download .icon {
-      stroke: var(--download);
-    }
-
-    .card.upload .icon {
-      stroke: var(--upload);
-    }
-
-    .card .value {
-      font-size: clamp(40px, 8vw, 56px);
-      font-weight: 600;
-      letter-spacing: -0.04em;
-      line-height: 1;
-      color: var(--text);
-      font-variant-numeric: tabular-nums;
-    }
-
-    .card .unit {
-      margin-top: 6px;
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--text-faint);
-      letter-spacing: -0.01em;
-    }
-
-    .card .progress-bar {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      height: 3px;
-      width: 0;
-      background: var(--download);
-      transition: width 0.2s linear, opacity 0.3s;
-      opacity: 0;
-    }
-
-    .card.upload .progress-bar {
-      background: var(--upload);
-    }
-
-    .card.active .progress-bar {
-      opacity: 1;
-    }
-
-    /* Mini stats */
-    .mini-stats {
-      display: flex;
-      justify-content: center;
-      gap: 32px;
-      margin: 8px 0 32px;
-      flex-wrap: wrap;
-    }
-
-    .mini-stat {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 2px;
-      min-width: 80px;
-    }
-
-    .mini-stat .stat-label {
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--text-faint);
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-    }
-
-    .mini-stat .stat-value {
-      font-size: 22px;
-      font-weight: 500;
-      letter-spacing: -0.02em;
-      color: var(--text);
-      font-variant-numeric: tabular-nums;
-    }
-
-    .mini-stat .stat-value::after {
-      content: " ms";
-      font-size: 12px;
-      font-weight: 400;
-      color: var(--text-faint);
-    }
-
-    /* Big button */
-    .action {
+    /* Share */
+    .share {
       display: inline-flex;
       align-items: center;
-      justify-content: center;
-      min-width: 200px;
-      height: 52px;
-      padding: 0 32px;
-      margin-top: 8px;
-      background: var(--accent);
-      color: white;
-      border: 0;
-      border-radius: var(--radius-pill);
-      font-family: inherit;
-      font-size: 17px;
-      font-weight: 500;
-      letter-spacing: -0.022em;
-      cursor: pointer;
-      transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 2px 8px rgba(0, 113, 227, 0.25);
-    }
-
-    .action:hover {
-      background: var(--accent-hover);
-      transform: translateY(-1px);
-      box-shadow: 0 6px 16px rgba(0, 113, 227, 0.3);
-    }
-
-    .action:active {
-      background: var(--accent-pressed);
-      transform: translateY(0);
-    }
-
-    .action.disabled {
-      background: var(--text-faint);
-      color: var(--bg);
-      cursor: not-allowed;
-      pointer-events: none;
-      box-shadow: none;
-    }
-
-    .action.running {
-      background: var(--danger);
-      box-shadow: 0 2px 8px rgba(255, 59, 48, 0.25);
-    }
-
-    .action.running:hover {
-      background: var(--danger-hover);
-      box-shadow: 0 6px 16px rgba(255, 59, 48, 0.3);
-    }
-
-    /* Footer info */
-    .footer-info {
-      margin-top: 32px;
-      min-height: 24px;
-      font-size: 13px;
-      color: var(--text-muted);
-      letter-spacing: -0.01em;
-    }
-
-    .footer-info .ip {
-      font-variant-numeric: tabular-nums;
-      color: var(--text);
-      font-weight: 500;
-    }
-
-    .share-row {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      margin-top: 16px;
+      gap: 8px;
+      margin-top: 6px;
       opacity: 0;
-      transform: translateY(8px);
-      transition: all 0.3s ease;
+      transform: translateY(6px);
+      transition: all 0.4s var(--ease-out);
       pointer-events: none;
     }
-
-    .share-row.visible {
+    .share.visible {
       opacity: 1;
       transform: translateY(0);
       pointer-events: auto;
     }
 
-    .share-row button {
+    .share button, .share a {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
       height: 36px;
-      padding: 0 18px;
-      background: transparent;
-      color: var(--accent);
+      padding: 0 16px;
+      background: var(--surface);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      color: var(--text);
       border: 1px solid var(--border);
-      border-radius: var(--radius-pill);
-      font-family: inherit;
-      font-size: 14px;
+      border-radius: 999px;
+      font-family: var(--sans);
+      font-size: 12px;
       font-weight: 500;
+      letter-spacing: 0.02em;
       cursor: pointer;
-      transition: all 0.18s ease;
+      text-decoration: none;
+      transition: all 0.25s var(--ease-out);
     }
-
-    .share-row button:hover {
-      background: rgba(0, 113, 227, 0.08);
-      border-color: var(--accent);
+    .share button:hover, .share a:hover {
+      border-color: var(--border-strong);
+      background: var(--surface-strong);
+      transform: translateY(-1px);
     }
-
-    @media (prefers-color-scheme: dark) {
-      .share-row button:hover {
-        background: rgba(10, 132, 255, 0.16);
-      }
-    }
-
-    .share-row button.copied {
-      background: var(--upload);
-      color: white;
+    .share button.copied {
       border-color: var(--upload);
+      color: var(--upload);
     }
 
     /* Footer */
     footer {
-      padding: 24px 32px 32px;
+      padding: 24px 40px 32px;
       text-align: center;
-      font-size: 12px;
+      font-size: 11px;
       color: var(--text-faint);
+      letter-spacing: 0.04em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
     }
-
     footer a {
       color: var(--text-muted);
       text-decoration: none;
-      transition: color 0.15s ease;
+      transition: color 0.2s ease;
     }
-
-    footer a:hover {
-      color: var(--accent);
-    }
-
-    footer .sep {
-      margin: 0 10px;
-      opacity: 0.5;
-    }
+    footer a:hover { color: var(--text); }
+    footer .sep { opacity: 0.3; }
 
     /* Privacy modal */
     dialog#privacy {
@@ -544,211 +758,239 @@
       width: 92%;
       max-height: 80vh;
       border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      background: var(--surface-solid);
+      border-radius: 22px;
+      background: rgba(13, 12, 20, 0.92);
+      backdrop-filter: blur(40px) saturate(180%);
+      -webkit-backdrop-filter: blur(40px) saturate(180%);
       color: var(--text);
       padding: 0;
-      box-shadow: var(--shadow-lg);
+      box-shadow: 0 32px 80px rgba(0, 0, 0, 0.6);
       overflow: hidden;
     }
-
     dialog#privacy::backdrop {
-      background: rgba(0, 0, 0, 0.4);
+      background: rgba(8, 7, 13, 0.7);
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
     }
-
     .modal-body {
-      padding: 32px;
+      padding: 36px;
       overflow-y: auto;
-      max-height: 70vh;
+      max-height: 65vh;
       text-align: left;
     }
-
     .modal-body h2 {
-      font-size: 24px;
-      font-weight: 600;
-      letter-spacing: -0.02em;
-      margin-bottom: 16px;
-    }
-
-    .modal-body h3 {
-      font-size: 15px;
-      font-weight: 600;
-      margin-top: 20px;
+      font-family: var(--serif);
+      font-size: 32px;
+      font-weight: 400;
+      letter-spacing: -0.01em;
       margin-bottom: 8px;
     }
-
-    .modal-body p,
-    .modal-body li {
+    .modal-body .modal-eyebrow {
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 18px;
+    }
+    .modal-body h3 {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-top: 22px;
+      margin-bottom: 10px;
+      color: var(--text);
+    }
+    .modal-body p, .modal-body li {
       font-size: 14px;
       color: var(--text-muted);
-      line-height: 1.6;
+      line-height: 1.65;
       margin-bottom: 8px;
     }
-
-    .modal-body ul {
-      padding-left: 20px;
-    }
-
-    .modal-body a {
-      color: var(--accent);
-    }
-
+    .modal-body ul { padding-left: 22px; }
+    .modal-body a { color: var(--accent); text-decoration: none; }
+    .modal-body a:hover { text-decoration: underline; }
     .modal-actions {
-      padding: 16px 32px;
+      padding: 18px 36px;
       border-top: 1px solid var(--border);
       display: flex;
       justify-content: flex-end;
     }
-
     .modal-actions button {
-      height: 36px;
-      padding: 0 18px;
-      background: var(--accent);
-      color: white;
+      height: 38px;
+      padding: 0 22px;
+      background: linear-gradient(180deg, #f7f5fb, #d6cfe7);
+      color: #1a1626;
       border: 0;
-      border-radius: var(--radius-pill);
-      font-family: inherit;
-      font-size: 14px;
+      border-radius: 999px;
+      font-family: var(--sans);
+      font-size: 13px;
       font-weight: 500;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
       cursor: pointer;
-      transition: background 0.15s ease;
+      transition: transform 0.2s var(--ease-spring);
     }
-
-    .modal-actions button:hover {
-      background: var(--accent-hover);
-    }
+    .modal-actions button:hover { transform: translateY(-1px); }
 
     .privacy-link {
-      margin-top: 12px;
-      font-size: 12px;
+      font-size: 11px;
       color: var(--text-faint);
+      margin-top: -4px;
     }
-
     .privacy-link a {
       color: var(--text-muted);
-      text-decoration: underline;
-      text-underline-offset: 2px;
       cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      text-decoration-color: var(--text-faint);
+    }
+    .privacy-link a:hover { color: var(--text); }
+
+    .hidden { display: none !important; }
+
+    @keyframes revealUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
-    .privacy-link a:hover {
-      color: var(--accent);
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    /* Subtle entry animation */
-    @media (prefers-reduced-motion: no-preference) {
-      .hero,
-      .server-pill,
-      .speed-cards,
-      .mini-stats,
-      .action {
-        animation: fadeUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) backwards;
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
       }
-      .server-pill { animation-delay: 0.05s; }
-      .speed-cards { animation-delay: 0.1s; }
-      .mini-stats { animation-delay: 0.15s; }
-      .action { animation-delay: 0.2s; }
-    }
-
-    @keyframes fadeUp {
-      from {
-        opacity: 0;
-        transform: translateY(12px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      .aurora::before, .aurora::after, .aurora-3 { animation: none; }
     }
   </style>
 </head>
 
 <body>
-  <header>
-    <div class="brand">LibreSpeed <span>· Neo</span></div>
-  </header>
+  <div class="aurora">
+    <div class="aurora-3"></div>
+  </div>
+  <div class="grain"></div>
 
-  <main>
-    <div class="hero">
-      <h1>Internet Speed.</h1>
-      <p>Measure your connection in seconds.</p>
-    </div>
+  <div class="app">
+    <nav>
+      <div class="logo">
+        <span class="logo-mark"></span>
+        <span>LibreSpeed</span>
+        <span class="logo-tag">neo</span>
+      </div>
 
-    <div class="server-pill" id="server-pill">
-      <span class="dot"></span>
-      <span class="server-name" id="server-name">Finding nearest server…</span>
-      <span class="chevron"></span>
-      <ul class="server-list" id="server-list"></ul>
-    </div>
+      <div class="server" id="server" aria-expanded="false" aria-label="Server selector">
+        <span class="server-dot"></span>
+        <span class="server-name" id="server-name">Finding nearest server</span>
+        <span class="server-chevron"></span>
+        <ul class="server-list" id="server-list"></ul>
+      </div>
+    </nav>
 
-    <div class="speed-cards">
-      <div class="card download" id="download-card">
-        <div class="label">
-          <svg class="icon" viewBox="0 0 24 24"><path d="M12 4v14m0 0l-6-6m6 6l6-6"/></svg>
-          Download
+    <main>
+      <span class="eyebrow">
+        <span class="eyebrow-dot"></span>
+        Internet Speed Test
+      </span>
+
+      <div class="gauge-wrap">
+        <svg class="gauge-svg" viewBox="0 0 200 200" aria-hidden="true">
+          <defs>
+            <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#c5b6ff"/>
+              <stop offset="100%" stop-color="#7df0c6"/>
+            </linearGradient>
+            <linearGradient id="ringGradUp" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#7df0c6"/>
+              <stop offset="100%" stop-color="#c5b6ff"/>
+            </linearGradient>
+          </defs>
+          <circle class="gauge-track" cx="100" cy="100" r="92"/>
+          <circle class="gauge-ring gauge-progress" id="gauge-ring"
+            cx="100" cy="100" r="92"
+            stroke="url(#ringGrad)"
+            pathLength="100"
+            stroke-dasharray="100"
+            stroke-dashoffset="100"/>
+        </svg>
+
+        <div class="gauge-center">
+          <span class="gauge-label" id="gauge-label">
+            <svg class="gauge-arrow" id="gauge-arrow" viewBox="0 0 12 12">
+              <path d="M6 1v10M6 11l-4-4M6 11l4-4" stroke="currentColor"/>
+            </svg>
+            <span id="gauge-label-text">Ready</span>
+          </span>
+          <span class="gauge-value" id="gauge-value">0.00</span>
+          <span class="gauge-unit">Mbps</span>
         </div>
-        <div class="value"><span id="download-value">0.00</span></div>
-        <div class="unit">Mbps</div>
-        <div class="progress-bar" id="download-progress"></div>
       </div>
-      <div class="card upload" id="upload-card">
-        <div class="label">
-          <svg class="icon" viewBox="0 0 24 24"><path d="M12 20V6m0 0l-6 6m6-6l6 6"/></svg>
-          Upload
+
+      <div class="gauge-phase" id="gauge-phase">&nbsp;</div>
+
+      <div class="stats">
+        <div class="stat download" id="stat-download">
+          <div class="stat-label"><span class="stat-dot"></span>Download</div>
+          <div class="stat-value"><span id="value-download">—</span><span class="stat-unit">Mbps</span></div>
         </div>
-        <div class="value"><span id="upload-value">0.00</span></div>
-        <div class="unit">Mbps</div>
-        <div class="progress-bar" id="upload-progress"></div>
+        <div class="stat upload" id="stat-upload">
+          <div class="stat-label"><span class="stat-dot"></span>Upload</div>
+          <div class="stat-value"><span id="value-upload">—</span><span class="stat-unit">Mbps</span></div>
+        </div>
+        <div class="stat ping" id="stat-ping">
+          <div class="stat-label"><span class="stat-dot"></span>Ping</div>
+          <div class="stat-value"><span id="value-ping">—</span><span class="stat-unit">ms</span></div>
+        </div>
+        <div class="stat jitter" id="stat-jitter">
+          <div class="stat-label"><span class="stat-dot"></span>Jitter</div>
+          <div class="stat-value"><span id="value-jitter">—</span><span class="stat-unit">ms</span></div>
+        </div>
       </div>
-    </div>
 
-    <div class="mini-stats">
-      <div class="mini-stat">
-        <span class="stat-label">Ping</span>
-        <span class="stat-value" id="ping-value">0</span>
+      <div class="action-wrap">
+        <button class="action disabled" id="start-button" aria-label="Start">
+          <span class="action-icon"></span>
+          <span id="start-text">Loading</span>
+        </button>
+
+        <div class="meta">
+          <span id="meta-status">Initializing</span>
+          <span class="meta-sep" id="meta-sep" style="display:none">·</span>
+          <span class="meta-ip" id="meta-ip"></span>
+        </div>
+
+        <div class="share" id="share">
+          <button id="copy-link">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12a3 3 0 0 0 4.24 0L17 8.24A3 3 0 1 0 12.76 4L11.5 5.26"/><path d="M15 12a3 3 0 0 0-4.24 0L7 15.76A3 3 0 1 0 11.24 20L12.5 18.74"/></svg>
+            Copy link
+          </button>
+          <a id="open-results" href="#" target="_blank" rel="noopener">
+            View results
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg>
+          </a>
+        </div>
+
+        <div class="privacy-link hidden" id="privacy-link">
+          <a id="open-privacy">Privacy policy</a>
+        </div>
       </div>
-      <div class="mini-stat">
-        <span class="stat-label">Jitter</span>
-        <span class="stat-value" id="jitter-value">0</span>
-      </div>
-    </div>
+    </main>
 
-    <button class="action disabled" id="start-button" aria-label="Start">Loading…</button>
-
-    <div class="footer-info">
-      <span id="status-text"></span>
-      <span id="ip-info" class="ip"></span>
-    </div>
-
-    <div class="share-row" id="share-row">
-      <button id="copy-link">Copy link</button>
-      <a id="open-results" href="#" target="_blank" rel="noopener" style="display:none;color:var(--accent);font-size:14px;text-decoration:none;">Open results ↗</a>
-    </div>
-
-    <div class="privacy-link hidden" id="privacy-link">
-      <a id="open-privacy">Privacy policy</a>
-    </div>
-  </main>
-
-  <footer>
-    <a href="https://github.com/librespeed/speedtest">Source code</a>
-    <span class="sep">·</span>
-    <a href="index.html?design=classic">Classic</a>
-    <span class="sep">·</span>
-    <a href="index.html?design=new">Modern</a>
-  </footer>
+    <footer>
+      <a href="https://github.com/librespeed/speedtest">Source</a>
+      <span class="sep">·</span>
+      <a href="index.html?design=classic">Classic UI</a>
+      <span class="sep">·</span>
+      <a href="index.html?design=new">Modern UI</a>
+    </footer>
+  </div>
 
   <dialog id="privacy">
     <div class="modal-body">
+      <div class="modal-eyebrow">LibreSpeed</div>
       <h2>Privacy policy</h2>
-      <p>This HTML5 speed test server is configured with telemetry enabled.</p>
-      <h3>What data we collect</h3>
+      <p style="margin-top:8px">This HTML5 speed test server is configured with telemetry enabled.</p>
+      <h3>What we collect</h3>
       <p>At the end of the test, the following data is collected and stored:</p>
       <ul>
         <li>Test ID</li>
@@ -760,8 +1002,7 @@
         <li>User agent and browser locale</li>
         <li>Test log (contains no personal information)</li>
       </ul>
-      <h3>How we use the data</h3>
-      <p>Data collected through this service is used to:</p>
+      <h3>How we use it</h3>
       <ul>
         <li>Allow sharing of test results (sharable image for forums, etc.)</li>
         <li>To improve the service offered to you (for instance, to detect problems on our side)</li>
@@ -770,15 +1011,7 @@
       <h3>Your consent</h3>
       <p>By starting the test, you consent to the terms of this privacy policy.</p>
       <h3>Data removal</h3>
-      <p>
-        If you want to have your information deleted, you need to provide either the ID of the test or your IP
-        address. This is the only way to identify your data, without this information we won't be able to comply
-        with your request.
-      </p>
-      <p>
-        Contact this email address for all deletion requests:
-        <a href="mailto:PUT@YOUR_EMAIL.HERE">TO BE FILLED BY DEVELOPER</a>.
-      </p>
+      <p>If you want to have your information deleted, you need to provide either the ID of the test or your IP address. Contact <a href="mailto:PUT@YOUR_EMAIL.HERE">TO BE FILLED BY DEVELOPER</a> for all deletion requests.</p>
     </div>
     <div class="modal-actions">
       <button id="close-privacy">Close</button>
@@ -788,7 +1021,6 @@
   <script>
     "use strict";
 
-    // Speed test state machine
     const INITIALIZING = 0;
     const READY = 1;
     const RUNNING = 2;
@@ -804,31 +1036,41 @@
       testId: null,
     };
 
-    // DOM references
     const $ = (id) => document.getElementById(id);
     const startBtn = $("start-button");
-    const serverPill = $("server-pill");
+    const startText = $("start-text");
+    const serverEl = $("server");
     const serverList = $("server-list");
     const serverName = $("server-name");
-    const downloadCard = $("download-card");
-    const uploadCard = $("upload-card");
-    const downloadValue = $("download-value");
-    const uploadValue = $("upload-value");
-    const downloadProgress = $("download-progress");
-    const uploadProgress = $("upload-progress");
-    const pingValue = $("ping-value");
-    const jitterValue = $("jitter-value");
-    const statusText = $("status-text");
-    const ipInfo = $("ip-info");
-    const shareRow = $("share-row");
-    const copyLink = $("copy-link");
+    const gaugeRing = $("gauge-ring");
+    const gaugeLabel = $("gauge-label");
+    const gaugeLabelText = $("gauge-label-text");
+    const gaugeArrow = $("gauge-arrow");
+    const gaugeValue = $("gauge-value");
+    const gaugePhase = $("gauge-phase");
+    const statDownload = $("stat-download");
+    const statUpload = $("stat-upload");
+    const statPing = $("stat-ping");
+    const statJitter = $("stat-jitter");
+    const valueDownload = $("value-download");
+    const valueUpload = $("value-upload");
+    const valuePing = $("value-ping");
+    const valueJitter = $("value-jitter");
+    const metaStatus = $("meta-status");
+    const metaSep = $("meta-sep");
+    const metaIp = $("meta-ip");
+    const shareEl = $("share");
+    const copyLinkBtn = $("copy-link");
     const openResults = $("open-results");
     const privacyLink = $("privacy-link");
     const openPrivacy = $("open-privacy");
     const closePrivacy = $("close-privacy");
     const privacyDialog = $("privacy");
 
-    // Boot
+    // Up arrow path for upload icon
+    const ARROW_DOWN = "M6 1v10M6 11l-4-4M6 11l4-4";
+    const ARROW_UP = "M6 11V1M6 1l-4 4M6 1l4 4";
+
     window.addEventListener("DOMContentLoaded", async () => {
       state.speedtest = new Speedtest();
       state.speedtest.onupdate = (data) => {
@@ -838,53 +1080,65 @@
       state.speedtest.onend = (aborted) => {
         state.phase = aborted ? READY : FINISHED;
       };
-
       hookEvents();
       await applySettings();
       await loadServers();
-      startRenderLoop();
+      requestAnimationFrame(renderLoop);
     });
 
     function hookEvents() {
       startBtn.addEventListener("click", onStartClick);
 
-      serverPill.addEventListener("click", (e) => {
-        if (serverPill.classList.contains("disabled")) return;
+      serverEl.addEventListener("click", (e) => {
+        if (serverEl.classList.contains("disabled")) return;
         if (e.target.closest("li")) return;
-        serverList.classList.toggle("active");
+        const open = serverList.classList.toggle("active");
+        serverEl.setAttribute("aria-expanded", open ? "true" : "false");
       });
       document.addEventListener("click", (e) => {
-        if (!e.target.closest("#server-pill")) {
+        if (!e.target.closest("#server")) {
           serverList.classList.remove("active");
+          serverEl.setAttribute("aria-expanded", "false");
         }
       });
 
-      copyLink.addEventListener("click", onCopyLink);
+      copyLinkBtn.addEventListener("click", onCopyLink);
       openPrivacy.addEventListener("click", () => privacyDialog.showModal());
       closePrivacy.addEventListener("click", () => privacyDialog.close());
       privacyDialog.addEventListener("click", (e) => {
         if (e.target === privacyDialog) privacyDialog.close();
       });
 
-      // Show copy button only when clipboard API is available
-      if (!navigator.clipboard) copyLink.classList.add("hidden");
+      if (!navigator.clipboard) copyLinkBtn.style.display = "none";
     }
 
     function onStartClick() {
       switch (state.phase) {
         case READY:
         case FINISHED:
-          shareRow.classList.remove("visible");
+          shareEl.classList.remove("visible");
           state.testId = null;
+          state.data = null;
+          resetVisuals();
           state.speedtest.start();
           state.phase = RUNNING;
           return;
         case RUNNING:
           state.speedtest.abort();
           return;
-        default:
-          return;
       }
+    }
+
+    function resetVisuals() {
+      gaugeRing.style.strokeDashoffset = "100";
+      valueDownload.textContent = "—";
+      valueUpload.textContent = "—";
+      valuePing.textContent = "—";
+      valueJitter.textContent = "—";
+      statDownload.classList.remove("active");
+      statUpload.classList.remove("active");
+      statPing.classList.remove("active");
+      statJitter.classList.remove("active");
     }
 
     async function onCopyLink() {
@@ -892,15 +1146,13 @@
       if (!url || url === "#") return;
       try {
         await navigator.clipboard.writeText(url);
-        copyLink.classList.add("copied");
-        copyLink.textContent = "Copied";
+        copyLinkBtn.classList.add("copied");
+        copyLinkBtn.lastChild && (copyLinkBtn.lastChild.textContent = " Copied");
         setTimeout(() => {
-          copyLink.classList.remove("copied");
-          copyLink.textContent = "Copy link";
+          copyLinkBtn.classList.remove("copied");
+          copyLinkBtn.lastChild && (copyLinkBtn.lastChild.textContent = " Copy link");
         }, 2000);
-      } catch (e) {
-        // ignore
-      }
+      } catch (e) { /* noop */ }
     }
 
     async function applySettings() {
@@ -911,60 +1163,37 @@
         if (!settings || typeof settings !== "object") return;
         for (const k in settings) {
           state.speedtest.setParameter(k, settings[k]);
-          if (
-            k === "telemetry_level" &&
-            settings[k] &&
-            !["off", "disabled", "false"].includes(String(settings[k]))
-          ) {
+          if (k === "telemetry_level" && settings[k] && !["off", "disabled", "false"].includes(String(settings[k]))) {
             state.telemetryEnabled = true;
             privacyLink.classList.remove("hidden");
           }
         }
-      } catch (e) {
-        // settings file optional
-      }
+      } catch (e) { /* settings optional */ }
     }
 
     async function loadServers() {
       try {
-        const source =
-          typeof globalThis.SPEEDTEST_SERVERS !== "undefined"
-            ? globalThis.SPEEDTEST_SERVERS
-            : "server-list.json";
-
+        const source = typeof globalThis.SPEEDTEST_SERVERS !== "undefined" ? globalThis.SPEEDTEST_SERVERS : "server-list.json";
         let servers;
-        if (Array.isArray(source)) {
-          servers = source;
-        } else if (typeof source === "string") {
+        if (Array.isArray(source)) servers = source;
+        else if (typeof source === "string") {
           const res = await fetch(source);
           if (!res.ok) throw new Error("Failed to load server list");
           servers = await res.json();
         }
-
-        if (!Array.isArray(servers) || servers.length === 0) {
-          throw new Error("Empty server list");
-        }
-
+        if (!Array.isArray(servers) || servers.length === 0) throw new Error("Empty");
         state.servers = servers;
-
-        if (servers.length === 1) {
-          selectServer(servers[0]);
-          return;
-        }
-
+        if (servers.length === 1) { selectServer(servers[0]); return; }
         state.speedtest.addTestPoints(servers);
         state.speedtest.selectServer((best) => {
-          const alive = state.servers.filter((s) => {
-            if (s.pingT !== -1) return true;
-            return typeof s.server === "string" && s.server.startsWith("//");
-          });
+          const alive = state.servers.filter((s) => s.pingT !== -1 || (typeof s.server === "string" && s.server.startsWith("//")));
           if (alive.length > 0) state.servers = alive;
           populateServerList(state.servers);
           if (best) selectServer(best);
-          else statusText.textContent = "No servers reachable.";
+          else metaStatus.textContent = "No servers reachable";
         });
       } catch (e) {
-        statusText.textContent = "Couldn't load server list.";
+        metaStatus.textContent = "Couldn't load server list";
       }
     }
 
@@ -972,14 +1201,13 @@
       serverList.innerHTML = "";
       servers.forEach((server) => {
         const li = document.createElement("li");
-        const sponsor = server.sponsorName
-          ? `<span class="sponsor">${escapeHtml(server.sponsorName)}</span>`
-          : "";
-        li.innerHTML = `${escapeHtml(server.name)}${sponsor}`;
+        const sp = server.sponsorName ? `<span class="sponsor">${escapeHtml(server.sponsorName)}</span>` : "";
+        li.innerHTML = `${escapeHtml(server.name)}${sp}`;
         li.addEventListener("click", (e) => {
           e.stopPropagation();
           selectServer(server);
           serverList.classList.remove("active");
+          serverEl.setAttribute("aria-expanded", "false");
         });
         serverList.appendChild(li);
       });
@@ -989,104 +1217,148 @@
       state.selectedServer = server;
       state.speedtest.setSelectedServer(server);
       serverName.textContent = server.name;
-      serverPill.classList.add("ready");
+      serverEl.classList.add("ready");
       state.phase = READY;
     }
 
     function escapeHtml(text) {
-      const div = document.createElement("div");
-      div.textContent = text;
-      return div.innerHTML;
+      const d = document.createElement("div");
+      d.textContent = text;
+      return d.innerHTML;
     }
 
-    function startRenderLoop() {
+    function renderLoop() {
       const btnText = {
-        [INITIALIZING]: "Loading…",
-        [READY]: "Start",
-        [RUNNING]: "Stop",
-        [FINISHED]: "Restart",
+        [INITIALIZING]: "Loading",
+        [READY]: "Start test",
+        [RUNNING]: "Stop test",
+        [FINISHED]: "Test again",
       };
 
-      function frame() {
-        startBtn.textContent = btnText[state.phase];
-        startBtn.classList.toggle("disabled", state.phase === INITIALIZING);
-        startBtn.classList.toggle("running", state.phase === RUNNING);
-        startBtn.setAttribute(
-          "aria-label",
-          state.phase === RUNNING ? "Abort" : "Start"
-        );
+      startText.textContent = btnText[state.phase];
+      startBtn.classList.toggle("disabled", state.phase === INITIALIZING);
+      startBtn.classList.toggle("running", state.phase === RUNNING);
+      startBtn.setAttribute("aria-label", state.phase === RUNNING ? "Abort test" : "Start test");
+      serverEl.classList.toggle("disabled", state.phase === RUNNING);
 
-        serverPill.classList.toggle("disabled", state.phase === RUNNING);
+      // Status text
+      if (state.phase === INITIALIZING) {
+        metaStatus.textContent = "Initializing";
+      } else if (state.phase === READY) {
+        metaStatus.textContent = state.selectedServer ? "Ready" : "Selecting server";
+      } else if (state.phase === RUNNING) {
+        metaStatus.textContent = "Live measurement";
+      } else if (state.phase === FINISHED) {
+        metaStatus.textContent = "Complete";
+      }
 
-        if (state.data) {
-          const d = state.data;
+      if (state.data) {
+        const d = state.data;
 
-          downloadValue.textContent = formatSpeed(d.dlStatus, d.testState === 1);
-          uploadValue.textContent = formatSpeed(d.ulStatus, d.testState === 3);
-          pingValue.textContent = formatLatency(d.pingStatus);
-          jitterValue.textContent = formatLatency(d.jitterStatus);
+        // Decide which value is dominant in the gauge
+        const isDl = d.testState === 1;
+        const isUl = d.testState === 3;
+        const isPing = d.testState === 2;
 
-          // Card active state during their phase
-          downloadCard.classList.toggle("active", d.testState === 1);
-          uploadCard.classList.toggle("active", d.testState === 3);
+        // Stat row updates
+        valueDownload.textContent = d.dlStatus ? formatSpeed(d.dlStatus, isDl) : (state.phase === RUNNING && !isDl && d.testState >= 1 ? valueDownload.textContent : (d.dlStatus === 0 && d.testState > 1 ? "0.00" : valueDownload.textContent));
+        valueUpload.textContent = d.ulStatus ? formatSpeed(d.ulStatus, isUl) : valueUpload.textContent;
+        valuePing.textContent = d.pingStatus ? formatLatency(d.pingStatus) : valuePing.textContent;
+        valueJitter.textContent = d.jitterStatus ? formatLatency(d.jitterStatus) : valueJitter.textContent;
 
-          // Progress bars
-          downloadProgress.style.width = `${(Number(d.dlProgress) || 0) * 100}%`;
-          uploadProgress.style.width = `${(Number(d.ulProgress) || 0) * 100}%`;
+        statDownload.classList.toggle("active", isDl);
+        statUpload.classList.toggle("active", isUl);
+        statPing.classList.toggle("active", isPing);
+        statJitter.classList.toggle("active", isPing);
 
-          // IP address
-          if (d.clientIp) {
-            ipInfo.textContent = String(d.clientIp).trim();
-          }
-
-          // Status text per phase
-          if (state.phase === RUNNING) {
-            statusText.textContent = phaseLabel(d.testState);
-          } else if (state.phase === FINISHED) {
-            statusText.textContent = "Test complete.";
-          } else {
-            statusText.textContent = "";
-          }
-
-          // Share link
-          if (
-            state.phase === FINISHED &&
-            state.telemetryEnabled &&
-            state.testId
-          ) {
-            const base = window.location.href.substring(
-              0,
-              window.location.href.lastIndexOf("/")
-            );
-            const shareUrl = `${base}/results/?id=${state.testId}`;
-            openResults.href = shareUrl;
-            openResults.style.display = "";
-            shareRow.classList.add("visible");
-          } else if (state.phase !== FINISHED) {
-            shareRow.classList.remove("visible");
-            openResults.style.display = "none";
-          }
-
-          // Clear active state when finished
-          if (state.phase === FINISHED || state.phase === READY) {
-            downloadCard.classList.remove("active");
-            uploadCard.classList.remove("active");
-          }
+        // Gauge
+        let gaugeNum = 0;
+        let gaugeProgress = 0;
+        if (isDl) {
+          gaugeNum = Number(d.dlStatus) || 0;
+          gaugeProgress = Number(d.dlProgress) || 0;
+          gaugeLabel.classList.add("active");
+          gaugeLabel.classList.remove("upload-active");
+          gaugeLabelText.textContent = "Downloading";
+          gaugeArrow.querySelector("path").setAttribute("d", ARROW_DOWN);
+        } else if (isUl) {
+          gaugeNum = Number(d.ulStatus) || 0;
+          gaugeProgress = Number(d.ulProgress) || 0;
+          gaugeLabel.classList.add("upload-active");
+          gaugeLabel.classList.remove("active");
+          gaugeLabelText.textContent = "Uploading";
+          gaugeRing.classList.add("upload");
+          gaugeRing.setAttribute("stroke", "url(#ringGradUp)");
+          gaugeArrow.querySelector("path").setAttribute("d", ARROW_UP);
+        } else if (isPing) {
+          gaugeNum = 0;
+          gaugeProgress = Number(d.pingProgress) || 0;
+          gaugeLabel.classList.remove("active", "upload-active");
+          gaugeLabelText.textContent = "Pinging";
+        } else if (state.phase === FINISHED) {
+          gaugeNum = Number(d.dlStatus) || 0;
+          gaugeProgress = 1;
+          gaugeLabel.classList.add("active");
+          gaugeLabel.classList.remove("upload-active");
+          gaugeLabelText.textContent = "Result";
         }
 
-        requestAnimationFrame(frame);
+        // Gauge value (oscillate slightly while measuring)
+        if (state.phase === RUNNING) {
+          gaugeValue.textContent = isPing ? "—" : formatSpeed(gaugeNum, isDl || isUl);
+        } else if (state.phase === FINISHED) {
+          gaugeValue.textContent = formatSpeed(gaugeNum, false);
+        }
+
+        // Gauge ring
+        const offset = 100 - Math.max(0, Math.min(100, gaugeProgress * 100));
+        gaugeRing.style.strokeDashoffset = String(offset);
+
+        if (d.clientIp) {
+          metaIp.textContent = String(d.clientIp).trim();
+          metaSep.style.display = "";
+        }
+
+        // Phase italic
+        const phaseText = phaseLabel(d.testState);
+        if (phaseText && state.phase === RUNNING) {
+          if (gaugePhase.dataset.text !== phaseText) {
+            gaugePhase.dataset.text = phaseText;
+            gaugePhase.textContent = phaseText;
+          }
+          gaugePhase.classList.add("visible");
+        } else {
+          gaugePhase.classList.remove("visible");
+        }
+
+        // Share
+        if (state.phase === FINISHED && state.telemetryEnabled && state.testId) {
+          const base = window.location.href.substring(0, window.location.href.lastIndexOf("/"));
+          openResults.href = `${base}/results/?id=${state.testId}`;
+          shareEl.classList.add("visible");
+        } else if (state.phase !== FINISHED) {
+          shareEl.classList.remove("visible");
+        }
+      } else {
+        // No data yet - reset gauge value display
+        if (state.phase === INITIALIZING || state.phase === READY) {
+          gaugeValue.textContent = "0.00";
+          gaugeLabelText.textContent = state.phase === INITIALIZING ? "Loading" : "Ready";
+          gaugeLabel.classList.remove("active", "upload-active");
+        }
       }
-      frame();
+
+      requestAnimationFrame(renderLoop);
     }
 
     function phaseLabel(testState) {
       switch (testState) {
-        case 0: return "Starting…";
-        case 1: return "Testing download…";
-        case 2: return "Measuring ping…";
-        case 3: return "Testing upload…";
-        case 4: return "Test complete.";
-        case 5: return "Aborted.";
+        case 0: return "Connecting to server";
+        case 1: return "Measuring download throughput";
+        case 2: return "Measuring latency";
+        case 3: return "Measuring upload throughput";
+        case 4: return "Test complete";
+        case 5: return "Aborted";
         default: return "";
       }
     }
@@ -1094,7 +1366,7 @@
     function formatSpeed(value, oscillate) {
       const n = Number(value);
       if (!n || isNaN(n)) return "0.00";
-      const v = oscillate ? n * (1 + 0.01 * Math.sin(Date.now() / 100)) : n;
+      const v = oscillate ? n * (1 + 0.008 * Math.sin(Date.now() / 110)) : n;
       if (v < 10) return v.toFixed(2);
       if (v < 100) return v.toFixed(1);
       return v.toFixed(0);
@@ -1102,7 +1374,7 @@
 
     function formatLatency(value) {
       const n = Number(value);
-      if (!n || isNaN(n)) return "0";
+      if (!n || isNaN(n)) return "—";
       if (n < 10) return n.toFixed(1);
       return Math.round(n).toString();
     }

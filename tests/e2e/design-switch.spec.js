@@ -30,6 +30,6 @@ test.describe("Design switch behavior", () => {
   test("query override design=neo loads the neo design", async ({ page }) => {
     await page.goto(`${baseUrls.standalone}/index.html?design=neo`);
     await expect(page).toHaveURL(/index-neo\.html\?design=neo/);
-    await expect(neoBrand(page)).toContainText("Neo");
+    await expect(neoBrand(page)).toContainText("LibreSpeed");
   });
 });

@@ -11,7 +11,7 @@ function neoStartButton(page) {
 }
 
 function neoBrand(page) {
-  return page.locator(".brand");
+  return page.locator(".logo");
 }
 
 module.exports = {
