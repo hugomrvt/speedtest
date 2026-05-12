@@ -2,7 +2,6 @@
 
 echo "Setting up docker env..."
 echo "MODE: $MODE"
-echo "USE_NEW_DESIGN: $USE_NEW_DESIGN"
 echo "SERVER_LIST_URL: $SERVER_LIST_URL"
 echo "WEBPORT: $WEBPORT"
 echo "REDACT_IP_ADDRESSES: $REDACT_IP_ADDRESSES"
@@ -33,14 +32,8 @@ sed_escape() {
 # Cleanup
 rm -rf /var/www/html/*
 
-# Copy frontend files
+# Copy core frontend files
 cp /speedtest/*.js /var/www/html/
-
-# Copy design switch files
-cp /speedtest/config.json /var/www/html/
-cp /speedtest/design-switch.js /var/www/html/
-
-# Copy favicon
 cp /speedtest/favicon.ico /var/www/html/
 
 # Set custom webroot on alpine
@@ -52,7 +45,7 @@ else
 fi
 
 
-# Set up backend side for standlone modes
+# Set up backend side for standalone modes
 if [[ "$MODE" == "standalone" || "$MODE" == "dual" ]]; then
   cp -r /speedtest/backend/ /var/www/html/backend
   if [ ! -z "$IPINFO_APIKEY" ]; then
@@ -67,37 +60,23 @@ if [ "$MODE" == "backend" ]; then
   fi
 fi
 
-# Set up index.php for frontend-only or standalone modes
+# Set up index.html for frontend-only or standalone modes
 if [[ "$MODE" == "frontend" || "$MODE" == "dual" ||  "$MODE" == "standalone" ]]; then
-  # Copy design files (switcher + all designs)
   cp /speedtest/index.html /var/www/html/
-  cp /speedtest/index-classic.html /var/www/html/
-  cp /speedtest/index-modern.html /var/www/html/
-  cp /speedtest/index-neo.html /var/www/html/
-  
-  # Copy frontend assets directly to root-level subdirectories (no frontend/ parent dir)
-  mkdir -p /var/www/html/styling /var/www/html/javascript /var/www/html/images /var/www/html/fonts
-  cp -a /speedtest/frontend/styling/* /var/www/html/styling/
-  cp -a /speedtest/frontend/javascript/* /var/www/html/javascript/
-  cp -a /speedtest/frontend/images/* /var/www/html/images/
-  cp -a /speedtest/frontend/fonts/* /var/www/html/fonts/ 2>/dev/null || true
-  
-  # Copy frontend config files
-  cp /speedtest/frontend/settings.json /var/www/html/settings.json 2>/dev/null || true
+  cp /speedtest/settings.json /var/www/html/settings.json
+
+  # Server list: use mounted /servers.json if present, otherwise the shipped default
   if [ -f /servers.json ]; then
     echo "using mounted /servers.json for server-list.json"
     cp /servers.json /var/www/html/server-list.json
   else
-    echo "no /servers.json found, create one for local host"
-    # generate config for just the local server
-    echo '[{"name":"local","server":"/backend",  "dlURL": "garbage.php", "ulURL": "empty.php", "pingURL": "empty.php", "getIpURL": "getIP.php", "sponsorName": "", "sponsorURL": "", "id":1 }]' > /var/www/html/server-list.json
+    cp /speedtest/server-list.json /var/www/html/server-list.json
   fi
+
   if [ ! -z "$SERVER_LIST_URL" ]; then
     echo "using SERVER_LIST_URL for frontend server list"
     SERVER_LIST_URL_ESCAPED=$(printf '%s\n' "$SERVER_LIST_URL" | sed 's/[&/\\]/\\&/g; s/\$/\\$/g')
-    sed -i "s/var SPEEDTEST_SERVERS = \"server-list.json\";/var SPEEDTEST_SERVERS = \"$SERVER_LIST_URL_ESCAPED\";/" /var/www/html/index-modern.html
-    sed -i "s/var SPEEDTEST_SERVERS = \"server-list.json\";/var SPEEDTEST_SERVERS = \"$SERVER_LIST_URL_ESCAPED\";/" /var/www/html/index-neo.html
-    sed -i "s/var SPEEDTEST_SERVERS = \\[/var SPEEDTEST_SERVERS = \"$SERVER_LIST_URL_ESCAPED\";\\n\\t\\t\\/\\*/" /var/www/html/index-classic.html
+    sed -i "s/var SPEEDTEST_SERVERS = \"server-list.json\";/var SPEEDTEST_SERVERS = \"$SERVER_LIST_URL_ESCAPED\";/" /var/www/html/index.html
   fi
 
   # Replace title placeholders if TITLE is set
@@ -106,21 +85,9 @@ if [[ "$MODE" == "frontend" || "$MODE" == "dual" ||  "$MODE" == "standalone" ]];
     TITLE_ONE_LINE=${TITLE_ONE_LINE//$'\n'/ }
     TITLE_HTML_ESCAPED=$(html_escape "$TITLE_ONE_LINE")
     TITLE_ESCAPED=$(sed_escape "$TITLE_HTML_ESCAPED")
-    sed -i "s/<title>LibreSpeed<\\/title>/<title>$TITLE_ESCAPED<\\/title>/g; s/<h1>LibreSpeed<\\/h1>/<h1>$TITLE_ESCAPED<\\/h1>/g" /var/www/html/index-classic.html
-    sed -i "s/<title>LibreSpeed<\\/title>/<title>$TITLE_ESCAPED<\\/title>/g" /var/www/html/index.html
-    sed -i "s/<title>LibreSpeed - Free and Open Source Speedtest<\\/title>/<title>$TITLE_ESCAPED - Free and Open Source Speedtest<\\/title>/g; s/<h1>Free and Open Source Speedtest\\.<\\/h1>/<h1>$TITLE_ESCAPED<\\/h1>/g" /var/www/html/index-modern.html
-    sed -i "s/<title>LibreSpeed<\\/title>/<title>$TITLE_ESCAPED<\\/title>/g; s/<span>LibreSpeed<\\/span>/<span>$TITLE_ESCAPED<\\/span>/g" /var/www/html/index-neo.html
+    sed -i "s/<title>LibreSpeed<\\/title>/<title>$TITLE_ESCAPED<\\/title>/g; s/<span>LibreSpeed<\\/span>/<span>$TITLE_ESCAPED<\\/span>/g" /var/www/html/index.html
   fi
 
-  # Replace modern page tagline if TAGLINE is set
-  if [ -n "$TAGLINE" ]; then
-    TAGLINE_ONE_LINE=${TAGLINE//$'\r'/}
-    TAGLINE_ONE_LINE=${TAGLINE_ONE_LINE//$'\n'/ }
-    TAGLINE_HTML_ESCAPED=$(html_escape "$TAGLINE_ONE_LINE")
-    TAGLINE_ESCAPED=$(sed_escape "$TAGLINE_HTML_ESCAPED")
-    sed -i "s/<p class=\"tagline\">No Flash, No Java, No Websockets, No Bullsh\\*t<\\/p>/<p class=\"tagline\">$TAGLINE_ESCAPED<\\/p>/g" /var/www/html/index-modern.html
-  fi
-  
   # Support legacy EMAIL env var as fallback for GDPR_EMAIL
   if [ -z "$GDPR_EMAIL" ] && [ ! -z "$EMAIL" ]; then
     echo "WARNING: EMAIL env var is deprecated, please use GDPR_EMAIL instead" >&2
@@ -130,33 +97,9 @@ if [[ "$MODE" == "frontend" || "$MODE" == "dual" ||  "$MODE" == "standalone" ]];
 
   # Replace GDPR email placeholder if GDPR_EMAIL is set
   if [ ! -z "$GDPR_EMAIL" ]; then
-    # Escape special sed characters: & (replacement), / (delimiter), \ (escape), $ (variable)
     GDPR_EMAIL_ESCAPED=$(printf '%s\n' "$GDPR_EMAIL" | sed 's/[&/\\]/\\&/g; s/\$/\\$/g')
-    
-    for html_file in /var/www/html/index-modern.html /var/www/html/index-classic.html /var/www/html/index-neo.html; do
-      if [ -f "$html_file" ]; then
-        sed -i "s/TO BE FILLED BY DEVELOPER/$GDPR_EMAIL_ESCAPED/g; s/PUT@YOUR_EMAIL.HERE/$GDPR_EMAIL_ESCAPED/g" "$html_file"
-      fi
-    done
+    sed -i "s/TO BE FILLED BY DEVELOPER/$GDPR_EMAIL_ESCAPED/g; s/PUT@YOUR_EMAIL.HERE/$GDPR_EMAIL_ESCAPED/g" /var/www/html/index.html
   fi
-fi
-# Configure design preference via config.json
-# DESIGN env var (neo | modern | classic) takes precedence over legacy USE_NEW_DESIGN
-if [ -n "$DESIGN" ]; then
-  DESIGN_LOWER=$(printf '%s' "$DESIGN" | tr '[:upper:]' '[:lower:]')
-  case "$DESIGN_LOWER" in
-    neo|modern|new|classic|old)
-      # Normalize 'new' to 'modern' and 'old' to 'classic'
-      if [ "$DESIGN_LOWER" = "new" ]; then DESIGN_LOWER="modern"; fi
-      if [ "$DESIGN_LOWER" = "old" ]; then DESIGN_LOWER="classic"; fi
-      echo "{\"design\":\"$DESIGN_LOWER\"}" > /var/www/html/config.json
-      ;;
-    *)
-      echo "WARNING: unknown DESIGN value '$DESIGN', falling back to classic" >&2
-      ;;
-  esac
-elif [ "$USE_NEW_DESIGN" == "true" ]; then
-  sed -i 's/"useNewDesign": false/"useNewDesign": true/' /var/www/html/config.json
 fi
 
 # Apply Telemetry settings when running in standalone or frontend mode and telemetry is enabled

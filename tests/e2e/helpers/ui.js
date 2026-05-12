@@ -1,22 +1,12 @@
-function modernStartButton(page) {
+function startButton(page) {
   return page.locator("#start-button");
 }
 
-function classicStartButton(page) {
-  return page.locator("#startStopBtn");
-}
-
-function neoStartButton(page) {
-  return page.locator("#start-button");
-}
-
-function neoBrand(page) {
+function brand(page) {
   return page.locator(".logo");
 }
 
 module.exports = {
-  modernStartButton,
-  classicStartButton,
-  neoStartButton,
-  neoBrand
+  startButton,
+  brand
 };

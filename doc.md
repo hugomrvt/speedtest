@@ -174,49 +174,45 @@ Requirements:
   * FreeType 2 and its PHP module
   * The PHP gd library
 
-To install the speed test frontend, copy the project files to your web server and keep the modern UI assets next to the HTML files:
+To install the speed test frontend, copy the project files to your web server:
 
 * `index.html`
-* `index-classic.html`
-* `index-modern.html`
-* `design-switch.js`
-* `config.json`
 * `speedtest.js`
 * `speedtest_worker.js`
+* `settings.json`
+* `server-list.json`
 * `favicon.ico`
 * the `backend` folder
-* the contents of `frontend/`, copied so `styling/`, `javascript/`, `images/`, and `fonts/` sit next to the HTML files
 * Optionally, the `results` folder
 
 __Important:__ The speed test needs read and execute permissions in the installation folder where applicable!
 
 ##### Server list
 
-Edit `index-classic.html` and uncomment the list of servers:
+The default `server-list.json` points to the local backend. To use multiple test points, replace its content with your list of servers. Each server in the list is a JSON object containing:
 
-```js
-var SPEEDTEST_SERVERS=[
- /*{
-  name:"Example Server 1", //user friendly name for the server
-  server:"//test1.mydomain.com/", //URL to the server. // at the beginning will be replaced with http:// or https:// automatically
-  dlURL:"backend/garbage.php",  //path to download test on this server (garbage.php or replacement)
-  ulURL:"backend/empty.php",  //path to upload test on this server (empty.php or replacement)
-  pingURL:"backend/empty.php",  //path to ping/jitter test on this server (empty.php or replacement)
-  getIpURL:"backend/getIP.php"  //path to getIP on this server (getIP.php or replacement)
- },
- {
-  name:"Example Server 2", //user friendly name for the server
-  server:"//test2.example.com/", //URL to the server. // at the beginning will be replaced with http:// or https:// automatically
-  dlURL:"garbage.php",  //path to download test on this server (garbage.php or replacement)
-  ulURL:"empty.php",  //path to upload test on this server (empty.php or replacement)
-  pingURL:"empty.php",  //path to ping/jitter test on this server (empty.php or replacement)
-  getIpURL:"getIP.php"  //path to getIP on this server (getIP.php or replacement)
- }*/
- //add other servers here, comma separated
-];
+```json
+[
+  {
+    "name": "Example Server 1",
+    "server": "//test1.mydomain.com/",
+    "dlURL": "backend/garbage.php",
+    "ulURL": "backend/empty.php",
+    "pingURL": "backend/empty.php",
+    "getIpURL": "backend/getIP.php"
+  },
+  {
+    "name": "Example Server 2",
+    "server": "//test2.example.com/",
+    "dlURL": "garbage.php",
+    "ulURL": "empty.php",
+    "pingURL": "empty.php",
+    "getIpURL": "getIP.php"
+  }
+]
 ```
 
-Replace the demo servers with your test points. Each server in the list is an object containing:
+Each server entry contains:
 
 * `"name"`: user friendly name for this test point
 * `"server"`: URL to the server. If your server only supports HTTP or HTTPS, put http:// or https:// at the beginning, respectively; if it supports both, put // at the beginning and it will be replaced automatically
