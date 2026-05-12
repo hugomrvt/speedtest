@@ -24,6 +24,7 @@ COPY *.js /speedtest/
 COPY index.html /speedtest/
 COPY index-classic.html /speedtest/
 COPY index-modern.html /speedtest/
+COPY index-neo.html /speedtest/
 COPY config.json /speedtest/
 COPY favicon.ico /speedtest/
 

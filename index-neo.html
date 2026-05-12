@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <meta name="description"
+    content="Free and Open Source Speedtest. Run it right now in your browser, or self-host on a PHP, Golang, Rust or Node server. License: LGPL." />
+  <meta name="theme-color" content="#fafafa" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
+  <link rel="shortcut icon" href="favicon.ico" />
+  <script type="text/javascript" src="speedtest.js"></script>
+  <script type="text/javascript">
+    // Set this to a different URL to load the server list from another location.
+    var SPEEDTEST_SERVERS = "server-list.json";
+  </script>
+  <title>LibreSpeed</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+
+      --bg: #fafafa;
+      --surface: rgba(255, 255, 255, 0.7);
+      --surface-solid: #ffffff;
+      --border: rgba(0, 0, 0, 0.08);
+      --text: #1d1d1f;
+      --text-muted: #6e6e73;
+      --text-faint: #a1a1a6;
+      --accent: #0071e3;
+      --accent-hover: #0077ed;
+      --accent-pressed: #006edb;
+      --danger: #ff3b30;
+      --danger-hover: #ff453a;
+      --download: #0071e3;
+      --upload: #34c759;
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+      --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.08);
+      --radius-sm: 10px;
+      --radius-md: 16px;
+      --radius-lg: 24px;
+      --radius-pill: 999px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #000000;
+        --surface: rgba(28, 28, 30, 0.72);
+        --surface-solid: #1c1c1e;
+        --border: rgba(255, 255, 255, 0.1);
+        --text: #f5f5f7;
+        --text-muted: #aeaeb2;
+        --text-faint: #6e6e73;
+        --accent: #0a84ff;
+        --accent-hover: #339cff;
+        --accent-pressed: #0070d8;
+        --danger: #ff453a;
+        --danger-hover: #ff5e54;
+        --download: #0a84ff;
+        --upload: #30d158;
+        --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+        --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+        --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.5);
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body {
+      min-height: 100vh;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
+        "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-feature-settings: "ss01", "ss02", "cv01", "cv11";
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+      line-height: 1.4;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Header */
+    header {
+      padding: 24px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .brand {
+      font-size: 17px;
+      font-weight: 600;
+      letter-spacing: -0.022em;
+      color: var(--text);
+    }
+
+    .brand span {
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    /* Main */
+    main {
+      flex: 1;
+      max-width: 720px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 24px 24px 64px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .hero {
+      margin: 48px 0 40px;
+    }
+
+    .hero h1 {
+      font-size: clamp(40px, 6vw, 64px);
+      font-weight: 600;
+      letter-spacing: -0.04em;
+      line-height: 1.05;
+      color: var(--text);
+    }
+
+    .hero p {
+      margin-top: 12px;
+      font-size: clamp(17px, 2vw, 21px);
+      font-weight: 400;
+      letter-spacing: -0.022em;
+      color: var(--text-muted);
+    }
+
+    /* Server selector */
+    .server-pill {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 18px;
+      margin-bottom: 32px;
+      background: var(--surface-solid);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-pill);
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: var(--shadow-sm);
+      max-width: 100%;
+    }
+
+    .server-pill:hover {
+      border-color: var(--accent);
+      color: var(--text);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .server-pill.disabled {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    .server-pill .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--text-faint);
+      transition: background 0.3s;
+    }
+
+    .server-pill.ready .dot {
+      background: var(--upload);
+      box-shadow: 0 0 0 4px rgba(52, 199, 89, 0.15);
+    }
+
+    .server-pill .chevron {
+      width: 10px;
+      height: 10px;
+      border-right: 1.5px solid currentColor;
+      border-bottom: 1.5px solid currentColor;
+      transform: rotate(45deg) translate(-2px, -2px);
+      opacity: 0.6;
+    }
+
+    .server-pill .server-name {
+      max-width: 320px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .server-list {
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      min-width: 280px;
+      max-width: 92vw;
+      max-height: 320px;
+      overflow-y: auto;
+      background: var(--surface-solid);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-lg);
+      padding: 6px;
+      list-style: none;
+      text-align: left;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(-50%) translateY(-4px);
+      transition: opacity 0.15s ease, transform 0.15s ease;
+      z-index: 10;
+    }
+
+    .server-list.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .server-list li {
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--text);
+      transition: background 0.12s ease;
+    }
+
+    .server-list li:hover {
+      background: rgba(0, 113, 227, 0.08);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .server-list li:hover {
+        background: rgba(10, 132, 255, 0.16);
+      }
+    }
+
+    .server-list .sponsor {
+      display: block;
+      font-size: 12px;
+      color: var(--text-faint);
+      margin-top: 2px;
+    }
+
+    /* Speed cards */
+    .speed-cards {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      width: 100%;
+      max-width: 600px;
+      margin-bottom: 16px;
+    }
+
+    @media (max-width: 540px) {
+      .speed-cards {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--surface-solid);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 28px 24px;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card.active {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+
+    .card .label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      text-transform: uppercase;
+    }
+
+    .card .icon {
+      width: 16px;
+      height: 16px;
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+    }
+
+    .card.download .icon {
+      stroke: var(--download);
+    }
+
+    .card.upload .icon {
+      stroke: var(--upload);
+    }
+
+    .card .value {
+      font-size: clamp(40px, 8vw, 56px);
+      font-weight: 600;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .card .unit {
+      margin-top: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-faint);
+      letter-spacing: -0.01em;
+    }
+
+    .card .progress-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 3px;
+      width: 0;
+      background: var(--download);
+      transition: width 0.2s linear, opacity 0.3s;
+      opacity: 0;
+    }
+
+    .card.upload .progress-bar {
+      background: var(--upload);
+    }
+
+    .card.active .progress-bar {
+      opacity: 1;
+    }
+
+    /* Mini stats */
+    .mini-stats {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      margin: 8px 0 32px;
+      flex-wrap: wrap;
+    }
+
+    .mini-stat {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      min-width: 80px;
+    }
+
+    .mini-stat .stat-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-faint);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .mini-stat .stat-value {
+      font-size: 22px;
+      font-weight: 500;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .mini-stat .stat-value::after {
+      content: " ms";
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--text-faint);
+    }
+
+    /* Big button */
+    .action {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 200px;
+      height: 52px;
+      padding: 0 32px;
+      margin-top: 8px;
+      background: var(--accent);
+      color: white;
+      border: 0;
+      border-radius: var(--radius-pill);
+      font-family: inherit;
+      font-size: 17px;
+      font-weight: 500;
+      letter-spacing: -0.022em;
+      cursor: pointer;
+      transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 2px 8px rgba(0, 113, 227, 0.25);
+    }
+
+    .action:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(0, 113, 227, 0.3);
+    }
+
+    .action:active {
+      background: var(--accent-pressed);
+      transform: translateY(0);
+    }
+
+    .action.disabled {
+      background: var(--text-faint);
+      color: var(--bg);
+      cursor: not-allowed;
+      pointer-events: none;
+      box-shadow: none;
+    }
+
+    .action.running {
+      background: var(--danger);
+      box-shadow: 0 2px 8px rgba(255, 59, 48, 0.25);
+    }
+
+    .action.running:hover {
+      background: var(--danger-hover);
+      box-shadow: 0 6px 16px rgba(255, 59, 48, 0.3);
+    }
+
+    /* Footer info */
+    .footer-info {
+      margin-top: 32px;
+      min-height: 24px;
+      font-size: 13px;
+      color: var(--text-muted);
+      letter-spacing: -0.01em;
+    }
+
+    .footer-info .ip {
+      font-variant-numeric: tabular-nums;
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .share-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 16px;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: all 0.3s ease;
+      pointer-events: none;
+    }
+
+    .share-row.visible {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .share-row button {
+      height: 36px;
+      padding: 0 18px;
+      background: transparent;
+      color: var(--accent);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-pill);
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+
+    .share-row button:hover {
+      background: rgba(0, 113, 227, 0.08);
+      border-color: var(--accent);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .share-row button:hover {
+        background: rgba(10, 132, 255, 0.16);
+      }
+    }
+
+    .share-row button.copied {
+      background: var(--upload);
+      color: white;
+      border-color: var(--upload);
+    }
+
+    /* Footer */
+    footer {
+      padding: 24px 32px 32px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-faint);
+    }
+
+    footer a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.15s ease;
+    }
+
+    footer a:hover {
+      color: var(--accent);
+    }
+
+    footer .sep {
+      margin: 0 10px;
+      opacity: 0.5;
+    }
+
+    /* Privacy modal */
+    dialog#privacy {
+      max-width: 560px;
+      width: 92%;
+      max-height: 80vh;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: var(--surface-solid);
+      color: var(--text);
+      padding: 0;
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+    }
+
+    dialog#privacy::backdrop {
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    .modal-body {
+      padding: 32px;
+      overflow-y: auto;
+      max-height: 70vh;
+      text-align: left;
+    }
+
+    .modal-body h2 {
+      font-size: 24px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+    }
+
+    .modal-body h3 {
+      font-size: 15px;
+      font-weight: 600;
+      margin-top: 20px;
+      margin-bottom: 8px;
+    }
+
+    .modal-body p,
+    .modal-body li {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin-bottom: 8px;
+    }
+
+    .modal-body ul {
+      padding-left: 20px;
+    }
+
+    .modal-body a {
+      color: var(--accent);
+    }
+
+    .modal-actions {
+      padding: 16px 32px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .modal-actions button {
+      height: 36px;
+      padding: 0 18px;
+      background: var(--accent);
+      color: white;
+      border: 0;
+      border-radius: var(--radius-pill);
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .modal-actions button:hover {
+      background: var(--accent-hover);
+    }
+
+    .privacy-link {
+      margin-top: 12px;
+      font-size: 12px;
+      color: var(--text-faint);
+    }
+
+    .privacy-link a {
+      color: var(--text-muted);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      cursor: pointer;
+    }
+
+    .privacy-link a:hover {
+      color: var(--accent);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* Subtle entry animation */
+    @media (prefers-reduced-motion: no-preference) {
+      .hero,
+      .server-pill,
+      .speed-cards,
+      .mini-stats,
+      .action {
+        animation: fadeUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) backwards;
+      }
+      .server-pill { animation-delay: 0.05s; }
+      .speed-cards { animation-delay: 0.1s; }
+      .mini-stats { animation-delay: 0.15s; }
+      .action { animation-delay: 0.2s; }
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="brand">LibreSpeed <span>· Neo</span></div>
+  </header>
+
+  <main>
+    <div class="hero">
+      <h1>Internet Speed.</h1>
+      <p>Measure your connection in seconds.</p>
+    </div>
+
+    <div class="server-pill" id="server-pill">
+      <span class="dot"></span>
+      <span class="server-name" id="server-name">Finding nearest server…</span>
+      <span class="chevron"></span>
+      <ul class="server-list" id="server-list"></ul>
+    </div>
+
+    <div class="speed-cards">
+      <div class="card download" id="download-card">
+        <div class="label">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M12 4v14m0 0l-6-6m6 6l6-6"/></svg>
+          Download
+        </div>
+        <div class="value"><span id="download-value">0.00</span></div>
+        <div class="unit">Mbps</div>
+        <div class="progress-bar" id="download-progress"></div>
+      </div>
+      <div class="card upload" id="upload-card">
+        <div class="label">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M12 20V6m0 0l-6 6m6-6l6 6"/></svg>
+          Upload
+        </div>
+        <div class="value"><span id="upload-value">0.00</span></div>
+        <div class="unit">Mbps</div>
+        <div class="progress-bar" id="upload-progress"></div>
+      </div>
+    </div>
+
+    <div class="mini-stats">
+      <div class="mini-stat">
+        <span class="stat-label">Ping</span>
+        <span class="stat-value" id="ping-value">0</span>
+      </div>
+      <div class="mini-stat">
+        <span class="stat-label">Jitter</span>
+        <span class="stat-value" id="jitter-value">0</span>
+      </div>
+    </div>
+
+    <button class="action disabled" id="start-button" aria-label="Start">Loading…</button>
+
+    <div class="footer-info">
+      <span id="status-text"></span>
+      <span id="ip-info" class="ip"></span>
+    </div>
+
+    <div class="share-row" id="share-row">
+      <button id="copy-link">Copy link</button>
+      <a id="open-results" href="#" target="_blank" rel="noopener" style="display:none;color:var(--accent);font-size:14px;text-decoration:none;">Open results ↗</a>
+    </div>
+
+    <div class="privacy-link hidden" id="privacy-link">
+      <a id="open-privacy">Privacy policy</a>
+    </div>
+  </main>
+
+  <footer>
+    <a href="https://github.com/librespeed/speedtest">Source code</a>
+    <span class="sep">·</span>
+    <a href="index.html?design=classic">Classic</a>
+    <span class="sep">·</span>
+    <a href="index.html?design=new">Modern</a>
+  </footer>
+
+  <dialog id="privacy">
+    <div class="modal-body">
+      <h2>Privacy policy</h2>
+      <p>This HTML5 speed test server is configured with telemetry enabled.</p>
+      <h3>What data we collect</h3>
+      <p>At the end of the test, the following data is collected and stored:</p>
+      <ul>
+        <li>Test ID</li>
+        <li>Time of testing</li>
+        <li>Test results (download and upload speed, ping and jitter)</li>
+        <li>IP address</li>
+        <li>ISP information</li>
+        <li>Approximate location (inferred from IP address, not GPS)</li>
+        <li>User agent and browser locale</li>
+        <li>Test log (contains no personal information)</li>
+      </ul>
+      <h3>How we use the data</h3>
+      <p>Data collected through this service is used to:</p>
+      <ul>
+        <li>Allow sharing of test results (sharable image for forums, etc.)</li>
+        <li>To improve the service offered to you (for instance, to detect problems on our side)</li>
+      </ul>
+      <p>No personal information is disclosed to third parties.</p>
+      <h3>Your consent</h3>
+      <p>By starting the test, you consent to the terms of this privacy policy.</p>
+      <h3>Data removal</h3>
+      <p>
+        If you want to have your information deleted, you need to provide either the ID of the test or your IP
+        address. This is the only way to identify your data, without this information we won't be able to comply
+        with your request.
+      </p>
+      <p>
+        Contact this email address for all deletion requests:
+        <a href="mailto:PUT@YOUR_EMAIL.HERE">TO BE FILLED BY DEVELOPER</a>.
+      </p>
+    </div>
+    <div class="modal-actions">
+      <button id="close-privacy">Close</button>
+    </div>
+  </dialog>
+
+  <script>
+    "use strict";
+
+    // Speed test state machine
+    const INITIALIZING = 0;
+    const READY = 1;
+    const RUNNING = 2;
+    const FINISHED = 3;
+
+    const state = {
+      phase: INITIALIZING,
+      speedtest: null,
+      servers: [],
+      selectedServer: null,
+      data: null,
+      telemetryEnabled: false,
+      testId: null,
+    };
+
+    // DOM references
+    const $ = (id) => document.getElementById(id);
+    const startBtn = $("start-button");
+    const serverPill = $("server-pill");
+    const serverList = $("server-list");
+    const serverName = $("server-name");
+    const downloadCard = $("download-card");
+    const uploadCard = $("upload-card");
+    const downloadValue = $("download-value");
+    const uploadValue = $("upload-value");
+    const downloadProgress = $("download-progress");
+    const uploadProgress = $("upload-progress");
+    const pingValue = $("ping-value");
+    const jitterValue = $("jitter-value");
+    const statusText = $("status-text");
+    const ipInfo = $("ip-info");
+    const shareRow = $("share-row");
+    const copyLink = $("copy-link");
+    const openResults = $("open-results");
+    const privacyLink = $("privacy-link");
+    const openPrivacy = $("open-privacy");
+    const closePrivacy = $("close-privacy");
+    const privacyDialog = $("privacy");
+
+    // Boot
+    window.addEventListener("DOMContentLoaded", async () => {
+      state.speedtest = new Speedtest();
+      state.speedtest.onupdate = (data) => {
+        state.data = data;
+        if (data && data.testId) state.testId = data.testId;
+      };
+      state.speedtest.onend = (aborted) => {
+        state.phase = aborted ? READY : FINISHED;
+      };
+
+      hookEvents();
+      await applySettings();
+      await loadServers();
+      startRenderLoop();
+    });
+
+    function hookEvents() {
+      startBtn.addEventListener("click", onStartClick);
+
+      serverPill.addEventListener("click", (e) => {
+        if (serverPill.classList.contains("disabled")) return;
+        if (e.target.closest("li")) return;
+        serverList.classList.toggle("active");
+      });
+      document.addEventListener("click", (e) => {
+        if (!e.target.closest("#server-pill")) {
+          serverList.classList.remove("active");
+        }
+      });
+
+      copyLink.addEventListener("click", onCopyLink);
+      openPrivacy.addEventListener("click", () => privacyDialog.showModal());
+      closePrivacy.addEventListener("click", () => privacyDialog.close());
+      privacyDialog.addEventListener("click", (e) => {
+        if (e.target === privacyDialog) privacyDialog.close();
+      });
+
+      // Show copy button only when clipboard API is available
+      if (!navigator.clipboard) copyLink.classList.add("hidden");
+    }
+
+    function onStartClick() {
+      switch (state.phase) {
+        case READY:
+        case FINISHED:
+          shareRow.classList.remove("visible");
+          state.testId = null;
+          state.speedtest.start();
+          state.phase = RUNNING;
+          return;
+        case RUNNING:
+          state.speedtest.abort();
+          return;
+        default:
+          return;
+      }
+    }
+
+    async function onCopyLink() {
+      const url = openResults.href;
+      if (!url || url === "#") return;
+      try {
+        await navigator.clipboard.writeText(url);
+        copyLink.classList.add("copied");
+        copyLink.textContent = "Copied";
+        setTimeout(() => {
+          copyLink.classList.remove("copied");
+          copyLink.textContent = "Copy link";
+        }, 2000);
+      } catch (e) {
+        // ignore
+      }
+    }
+
+    async function applySettings() {
+      try {
+        const res = await fetch("settings.json");
+        if (!res.ok) return;
+        const settings = await res.json();
+        if (!settings || typeof settings !== "object") return;
+        for (const k in settings) {
+          state.speedtest.setParameter(k, settings[k]);
+          if (
+            k === "telemetry_level" &&
+            settings[k] &&
+            !["off", "disabled", "false"].includes(String(settings[k]))
+          ) {
+            state.telemetryEnabled = true;
+            privacyLink.classList.remove("hidden");
+          }
+        }
+      } catch (e) {
+        // settings file optional
+      }
+    }
+
+    async function loadServers() {
+      try {
+        const source =
+          typeof globalThis.SPEEDTEST_SERVERS !== "undefined"
+            ? globalThis.SPEEDTEST_SERVERS
+            : "server-list.json";
+
+        let servers;
+        if (Array.isArray(source)) {
+          servers = source;
+        } else if (typeof source === "string") {
+          const res = await fetch(source);
+          if (!res.ok) throw new Error("Failed to load server list");
+          servers = await res.json();
+        }
+
+        if (!Array.isArray(servers) || servers.length === 0) {
+          throw new Error("Empty server list");
+        }
+
+        state.servers = servers;
+
+        if (servers.length === 1) {
+          selectServer(servers[0]);
+          return;
+        }
+
+        state.speedtest.addTestPoints(servers);
+        state.speedtest.selectServer((best) => {
+          const alive = state.servers.filter((s) => {
+            if (s.pingT !== -1) return true;
+            return typeof s.server === "string" && s.server.startsWith("//");
+          });
+          if (alive.length > 0) state.servers = alive;
+          populateServerList(state.servers);
+          if (best) selectServer(best);
+          else statusText.textContent = "No servers reachable.";
+        });
+      } catch (e) {
+        statusText.textContent = "Couldn't load server list.";
+      }
+    }
+
+    function populateServerList(servers) {
+      serverList.innerHTML = "";
+      servers.forEach((server) => {
+        const li = document.createElement("li");
+        const sponsor = server.sponsorName
+          ? `<span class="sponsor">${escapeHtml(server.sponsorName)}</span>`
+          : "";
+        li.innerHTML = `${escapeHtml(server.name)}${sponsor}`;
+        li.addEventListener("click", (e) => {
+          e.stopPropagation();
+          selectServer(server);
+          serverList.classList.remove("active");
+        });
+        serverList.appendChild(li);
+      });
+    }
+
+    function selectServer(server) {
+      state.selectedServer = server;
+      state.speedtest.setSelectedServer(server);
+      serverName.textContent = server.name;
+      serverPill.classList.add("ready");
+      state.phase = READY;
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement("div");
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function startRenderLoop() {
+      const btnText = {
+        [INITIALIZING]: "Loading…",
+        [READY]: "Start",
+        [RUNNING]: "Stop",
+        [FINISHED]: "Restart",
+      };
+
+      function frame() {
+        startBtn.textContent = btnText[state.phase];
+        startBtn.classList.toggle("disabled", state.phase === INITIALIZING);
+        startBtn.classList.toggle("running", state.phase === RUNNING);
+        startBtn.setAttribute(
+          "aria-label",
+          state.phase === RUNNING ? "Abort" : "Start"
+        );
+
+        serverPill.classList.toggle("disabled", state.phase === RUNNING);
+
+        if (state.data) {
+          const d = state.data;
+
+          downloadValue.textContent = formatSpeed(d.dlStatus, d.testState === 1);
+          uploadValue.textContent = formatSpeed(d.ulStatus, d.testState === 3);
+          pingValue.textContent = formatLatency(d.pingStatus);
+          jitterValue.textContent = formatLatency(d.jitterStatus);
+
+          // Card active state during their phase
+          downloadCard.classList.toggle("active", d.testState === 1);
+          uploadCard.classList.toggle("active", d.testState === 3);
+
+          // Progress bars
+          downloadProgress.style.width = `${(Number(d.dlProgress) || 0) * 100}%`;
+          uploadProgress.style.width = `${(Number(d.ulProgress) || 0) * 100}%`;
+
+          // IP address
+          if (d.clientIp) {
+            ipInfo.textContent = String(d.clientIp).trim();
+          }
+
+          // Status text per phase
+          if (state.phase === RUNNING) {
+            statusText.textContent = phaseLabel(d.testState);
+          } else if (state.phase === FINISHED) {
+            statusText.textContent = "Test complete.";
+          } else {
+            statusText.textContent = "";
+          }
+
+          // Share link
+          if (
+            state.phase === FINISHED &&
+            state.telemetryEnabled &&
+            state.testId
+          ) {
+            const base = window.location.href.substring(
+              0,
+              window.location.href.lastIndexOf("/")
+            );
+            const shareUrl = `${base}/results/?id=${state.testId}`;
+            openResults.href = shareUrl;
+            openResults.style.display = "";
+            shareRow.classList.add("visible");
+          } else if (state.phase !== FINISHED) {
+            shareRow.classList.remove("visible");
+            openResults.style.display = "none";
+          }
+
+          // Clear active state when finished
+          if (state.phase === FINISHED || state.phase === READY) {
+            downloadCard.classList.remove("active");
+            uploadCard.classList.remove("active");
+          }
+        }
+
+        requestAnimationFrame(frame);
+      }
+      frame();
+    }
+
+    function phaseLabel(testState) {
+      switch (testState) {
+        case 0: return "Starting…";
+        case 1: return "Testing download…";
+        case 2: return "Measuring ping…";
+        case 3: return "Testing upload…";
+        case 4: return "Test complete.";
+        case 5: return "Aborted.";
+        default: return "";
+      }
+    }
+
+    function formatSpeed(value, oscillate) {
+      const n = Number(value);
+      if (!n || isNaN(n)) return "0.00";
+      const v = oscillate ? n * (1 + 0.01 * Math.sin(Date.now() / 100)) : n;
+      if (v < 10) return v.toFixed(2);
+      if (v < 100) return v.toFixed(1);
+      return v.toFixed(0);
+    }
+
+    function formatLatency(value) {
+      const n = Number(value);
+      if (!n || isNaN(n)) return "0";
+      if (n < 10) return n.toFixed(1);
+      return Math.round(n).toString();
+    }
+  </script>
+</body>
+
+</html>

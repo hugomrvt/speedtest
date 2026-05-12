@@ -69,10 +69,11 @@ fi
 
 # Set up index.php for frontend-only or standalone modes
 if [[ "$MODE" == "frontend" || "$MODE" == "dual" ||  "$MODE" == "standalone" ]]; then
-  # Copy design files (switcher + both designs)
+  # Copy design files (switcher + all designs)
   cp /speedtest/index.html /var/www/html/
   cp /speedtest/index-classic.html /var/www/html/
   cp /speedtest/index-modern.html /var/www/html/
+  cp /speedtest/index-neo.html /var/www/html/
   
   # Copy frontend assets directly to root-level subdirectories (no frontend/ parent dir)
   mkdir -p /var/www/html/styling /var/www/html/javascript /var/www/html/images /var/www/html/fonts
@@ -95,6 +96,7 @@ if [[ "$MODE" == "frontend" || "$MODE" == "dual" ||  "$MODE" == "standalone" ]];
     echo "using SERVER_LIST_URL for frontend server list"
     SERVER_LIST_URL_ESCAPED=$(printf '%s\n' "$SERVER_LIST_URL" | sed 's/[&/\\]/\\&/g; s/\$/\\$/g')
     sed -i "s/var SPEEDTEST_SERVERS = \"server-list.json\";/var SPEEDTEST_SERVERS = \"$SERVER_LIST_URL_ESCAPED\";/" /var/www/html/index-modern.html
+    sed -i "s/var SPEEDTEST_SERVERS = \"server-list.json\";/var SPEEDTEST_SERVERS = \"$SERVER_LIST_URL_ESCAPED\";/" /var/www/html/index-neo.html
     sed -i "s/var SPEEDTEST_SERVERS = \\[/var SPEEDTEST_SERVERS = \"$SERVER_LIST_URL_ESCAPED\";\\n\\t\\t\\/\\*/" /var/www/html/index-classic.html
   fi
 
@@ -107,6 +109,7 @@ if [[ "$MODE" == "frontend" || "$MODE" == "dual" ||  "$MODE" == "standalone" ]];
     sed -i "s/<title>LibreSpeed<\\/title>/<title>$TITLE_ESCAPED<\\/title>/g; s/<h1>LibreSpeed<\\/h1>/<h1>$TITLE_ESCAPED<\\/h1>/g" /var/www/html/index-classic.html
     sed -i "s/<title>LibreSpeed<\\/title>/<title>$TITLE_ESCAPED<\\/title>/g" /var/www/html/index.html
     sed -i "s/<title>LibreSpeed - Free and Open Source Speedtest<\\/title>/<title>$TITLE_ESCAPED - Free and Open Source Speedtest<\\/title>/g; s/<h1>Free and Open Source Speedtest\\.<\\/h1>/<h1>$TITLE_ESCAPED<\\/h1>/g" /var/www/html/index-modern.html
+    sed -i "s/<title>LibreSpeed<\\/title>/<title>$TITLE_ESCAPED<\\/title>/g; s/<div class=\"brand\">LibreSpeed <span>· Neo<\\/span><\\/div>/<div class=\"brand\">$TITLE_ESCAPED <span>· Neo<\\/span><\\/div>/g; s/<h1>Internet Speed\\.<\\/h1>/<h1>$TITLE_ESCAPED<\\/h1>/g" /var/www/html/index-neo.html
   fi
 
   # Replace modern page tagline if TAGLINE is set
@@ -130,7 +133,7 @@ if [[ "$MODE" == "frontend" || "$MODE" == "dual" ||  "$MODE" == "standalone" ]];
     # Escape special sed characters: & (replacement), / (delimiter), \ (escape), $ (variable)
     GDPR_EMAIL_ESCAPED=$(printf '%s\n' "$GDPR_EMAIL" | sed 's/[&/\\]/\\&/g; s/\$/\\$/g')
     
-    for html_file in /var/www/html/index-modern.html /var/www/html/index-classic.html; do
+    for html_file in /var/www/html/index-modern.html /var/www/html/index-classic.html /var/www/html/index-neo.html; do
       if [ -f "$html_file" ]; then
         sed -i "s/TO BE FILLED BY DEVELOPER/$GDPR_EMAIL_ESCAPED/g; s/PUT@YOUR_EMAIL.HERE/$GDPR_EMAIL_ESCAPED/g" "$html_file"
       fi
@@ -138,7 +141,21 @@ if [[ "$MODE" == "frontend" || "$MODE" == "dual" ||  "$MODE" == "standalone" ]];
   fi
 fi
 # Configure design preference via config.json
-if [ "$USE_NEW_DESIGN" == "true" ]; then
+# DESIGN env var (neo | modern | classic) takes precedence over legacy USE_NEW_DESIGN
+if [ -n "$DESIGN" ]; then
+  DESIGN_LOWER=$(printf '%s' "$DESIGN" | tr '[:upper:]' '[:lower:]')
+  case "$DESIGN_LOWER" in
+    neo|modern|new|classic|old)
+      # Normalize 'new' to 'modern' and 'old' to 'classic'
+      if [ "$DESIGN_LOWER" = "new" ]; then DESIGN_LOWER="modern"; fi
+      if [ "$DESIGN_LOWER" = "old" ]; then DESIGN_LOWER="classic"; fi
+      echo "{\"design\":\"$DESIGN_LOWER\"}" > /var/www/html/config.json
+      ;;
+    *)
+      echo "WARNING: unknown DESIGN value '$DESIGN', falling back to classic" >&2
+      ;;
+  esac
+elif [ "$USE_NEW_DESIGN" == "true" ]; then
   sed -i 's/"useNewDesign": false/"useNewDesign": true/' /var/www/html/config.json
 fi
 

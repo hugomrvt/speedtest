@@ -40,7 +40,7 @@ Works with mobile versions too.
 Assuming you have PHP and a web server installed, the installation steps are quite simple.
 
 1. Download the source code and extract it
-1. Copy the project files to your web server's shared folder (ie. `/var/www/html/speedtest` for Apache). For the current layout, the web root should contain `index.html`, `index-classic.html`, `index-modern.html`, `design-switch.js`, `config.json`, `speedtest.js`, `speedtest_worker.js`, `favicon.ico`, and the `backend` folder.
+1. Copy the project files to your web server's shared folder (ie. `/var/www/html/speedtest` for Apache). For the current layout, the web root should contain `index.html`, `index-classic.html`, `index-modern.html`, `index-neo.html`, `design-switch.js`, `config.json`, `speedtest.js`, `speedtest_worker.js`, `favicon.ico`, and the `backend` folder.
 1. Also copy the contents of `frontend/` into the same web root so the modern UI assets end up in `styling/`, `javascript/`, `images/`, and `fonts/` next to the HTML files.
 1. Optionally, copy the results folder too, and set up the database using the config file in it.
 1. Be sure your permissions allow read and execute access where needed.
@@ -70,7 +70,7 @@ If you want to contribute or develop with LibreSpeed, see [DEVELOPMENT.md](DEVEL
 
 ## Design switch
 
-LibreSpeed supports both the classic and modern UI. The root `index.html` acts as a lightweight switcher and redirects to `index-classic.html` or `index-modern.html` based on `config.json` (`useNewDesign`) or URL overrides (`?design=new` / `?design=old`). For architecture and deployment details (including Docker behavior), see [DESIGN_SWITCH.md](DESIGN_SWITCH.md).
+LibreSpeed ships three designs: **classic**, **modern**, and **neo** (a minimal Apple-inspired UI with built-in light/dark mode). The root `index.html` acts as a lightweight switcher and redirects to `index-classic.html`, `index-modern.html`, or `index-neo.html` based on `config.json` (`design` field, or legacy `useNewDesign`) or URL overrides (`?design=neo` / `?design=new` / `?design=classic`). For architecture and deployment details (including Docker behavior), see [DESIGN_SWITCH.md](DESIGN_SWITCH.md).
 
 ## Docker
 
